@@ -1,73 +1,28 @@
-package com.expensetracker.userservice.entity;
+package com.expensetracker.expensetrackergateway.entity;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-@Entity
-@Table(name = "user")
 public class User {
 
-	@Id
-	@Column(name = "user_id")
 	private String userId;
 
-	@NotNull
-	@Column(name = "first_name")
 	private String firstName;
 
-	@NotNull
-	@Column(name = "last_name")
 	private String lastName;
 
-	@NotNull
-	@Column(name = "ph_no")
 	private String phoneNumber;
 
-	@NotNull
-	@Column(name = "email")
 	private String email;
 
-	@NotNull
-	@Column(name = "password")
 	private String password;
 
-	@NotNull
-	@Column(name = "dob")
 	@JsonFormat(pattern = "dd/MM/yyyy", shape = JsonFormat.Shape.STRING)
 	private Date dateOfBirth;
 
-	@ManyToOne
-	@JoinColumn(name = "currency_id")
-	@NotNull
-	@Valid
-	private Currency currency;
-
 	public User() {
 		super();
-	}
-
-	public User(String userId, @NotNull String firstName, @NotNull String lastName, @NotNull String phoneNumber,
-			@NotNull String email, @NotNull String password, @NotNull Date dateOfBirth,
-			@NotNull @Valid Currency currency) {
-		super();
-		this.userId = userId;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.phoneNumber = phoneNumber;
-		this.email = email;
-		this.password = password;
-		this.dateOfBirth = dateOfBirth;
-		this.currency = currency;
 	}
 
 	public String getUserId() {
@@ -118,14 +73,6 @@ public class User {
 		this.dateOfBirth = dateOfBirth;
 	}
 
-	public Currency getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
-	}
-
 	public String getPassword() {
 		return password;
 	}
@@ -162,8 +109,7 @@ public class User {
 	@Override
 	public String toString() {
 		return "User [userId=" + userId + ", firstName=" + firstName + ", lastName=" + lastName + ", phoneNumber="
-				+ phoneNumber + ", email=" + email + ", dateOfBirth=" + dateOfBirth + ", currency="
-				+ currency.toString() + "]";
+				+ phoneNumber + ", email=" + email + ", dateOfBirth=" + dateOfBirth;
 	}
 
 }
