@@ -33,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors();
 		http.csrf().disable().httpBasic().and().authorizeRequests().antMatchers("/user-service/users/create")
+				.permitAll().antMatchers("/common-service/**")
 				.permitAll().anyRequest().authenticated().and()
 				.addFilter(new JwtAuthorizationFilter(authenticationManager()));
 	}

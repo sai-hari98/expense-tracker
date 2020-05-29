@@ -1,9 +1,27 @@
 import React, { Component } from 'react';
-// import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import IconButton from '@material-ui/core/IconButton';
 import classes from './NavBar.module.css';
+import { connect } from 'react-redux';
+import * as utility from '../../../common/utility';
+import * as actions from '../../../store/actions/index';
+
+const nonUserLinks = [
+    <Link className="nav-link text-white" to="/login">Login</Link>,
+];
+
+const userLinks = [
+
+]
+
 class NavBar extends Component {
+
+    logoutHandler = () => {
+        this.props.logout();
+        utility.setToken(null, false);
+        this.props.history.replace("/");
+    }
 
     render() {
         let path = !this.props.darkMode ? <path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6c3.31 0 6 2.69 6 6s-2.69 6-6 6z"></path> :
@@ -12,6 +30,23 @@ class NavBar extends Component {
         return (
             <div className={"navbar navbar-expand-lg navbar-dark " + navClass}>
                 <a className="navbar-brand" href="/">Expense Tracker</a>
+                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span className="navbar-toggler-icon"></span>
+                </button>
+                <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul className="navbar-nav ml-auto">
+                        {this.props.loggedIn ? userLinks.map((link, index) => {
+                            return (<li className="nav-item" key={index}>
+                                {link}
+                            </li>)
+                        }) : nonUserLinks.map((link, index) => {
+                            return (<li className="nav-item" key={index}>
+                                {link}
+                            </li>)
+                        })}
+                        {this.props.loggedIn ? <li className="nav-item"><a className="nav-link text-white" style={{ cursor: 'pointer' }} onClick={this.logoutHandler}>Logout</a></li> : null}
+                    </ul>
+                </div>
                 <IconButton className="ml-auto" style={{ 'outline': 'none' }} onClick={this.props.darkModeToggler}>
                     <SvgIcon style={{ 'color': '#ffffff' }}>
                         {path}
@@ -22,4 +57,15 @@ class NavBar extends Component {
     }
 }
 
-export default NavBar;
+const mapStateToProps = state => {
+    return {
+        loggedIn: state.auth.loggedIn
+    }
+}
+
+const mapActionsToProps = dispatch => {
+    return {
+        logout: () => dispatch(actions.logout())
+    }
+}
+export default connect(mapStateToProps, mapActionsToProps)(NavBar);

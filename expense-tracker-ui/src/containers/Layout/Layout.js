@@ -2,16 +2,28 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import NavBar from '../../components/Site/NavBar/NavBar';
 import NonUser from '../../components/Site/NonUser/NonUser';
-import Aux from '../../hoc/Auxillary';
+import { Route, BrowserRouter } from 'react-router-dom';
+import Auth from '../Auth/Auth';
+import * as actions from '../../store/actions/index';
+import Signup from '../Auth/Signup/Signup';
+
 class Layout extends Component {
 
     state = {
         darkMode: false
     }
 
+    componentDidMount() {
+        let token = localStorage.getItem('token');
+        if (token !== null) {
+            this.props.setToken(token);
+        }
+    }
+
     darkModeHandler = () => {
         let darkMode = this.state.darkMode;
         this.setState({ darkMode: !darkMode });
+        this.props.setDarkMode();
     }
 
     render() {
@@ -23,17 +35,27 @@ class Layout extends Component {
             document.body.style.color = '#000000';
         }
         return (
-            <Aux>
+            <BrowserRouter>
                 <NavBar darkMode={this.state.darkMode} darkModeToggler={this.darkModeHandler} />
-                {!this.props.loggedIn ? <NonUser /> : null}
-            </Aux>
+                {!this.props.loggedIn ? <Route path="/" exact component={NonUser}></Route> : null}
+                <Route path="/login" exact component={Auth}></Route>
+                <Route path="/signup" exact component={Signup}></Route>
+            </BrowserRouter>
         )
     }
 }
 
 const mapStateToProps = state => {
     return {
-        loggedIn: state.loggedIn
+        loggedIn: state.auth.loggedIn
     }
 }
-export default connect(mapStateToProps, null)(Layout);
+
+const mapActionsToProps = dispatch => {
+    return {
+        setDarkMode: () => dispatch(actions.toggleDarkMode()),
+        setToken: (token) => dispatch(actions.setToken(token))
+    }
+}
+
+export default connect(mapStateToProps, mapActionsToProps)(Layout);
