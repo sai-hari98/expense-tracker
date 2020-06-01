@@ -30,6 +30,7 @@ public class AuthenticationService {
 		if (user != null) {
 			jwt.put("status", true);
 			jwt.put("token", generateJwt(email));
+			jwt.put("userId", user.getUserId());
 		} else {
 			jwt.put("status", false);
 			jwt.put("message", "User does not exist");

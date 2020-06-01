@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import Button from '@material-ui/core/Button';
+import MenuIcon from '@material-ui/icons/Menu';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import IconButton from '@material-ui/core/IconButton';
 import classes from './NavBar.module.css';
 import { connect } from 'react-redux';
 import * as utility from '../../../common/utility';
 import * as actions from '../../../store/actions/index';
-
+import SideDrawer from './SideDrawer/SideDrawer';
 const nonUserLinks = [
-    <Link className="nav-link text-white" to="/login">Login</Link>,
 ];
 
 const userLinks = [
@@ -17,10 +18,18 @@ const userLinks = [
 
 class NavBar extends Component {
 
+    state = {
+        showSideDrawer: false
+    }
+
     logoutHandler = () => {
         this.props.logout();
-        utility.setToken(null, false);
+        utility.setCredentials(null, null, false);
         this.props.history.replace("/");
+    }
+
+    toggleDrawer = (show) => {
+        this.setState({ showSideDrawer: show });
     }
 
     render() {
@@ -30,9 +39,6 @@ class NavBar extends Component {
         return (
             <div className={"navbar navbar-expand-lg navbar-dark " + navClass}>
                 <a className="navbar-brand" href="/">Expense Tracker</a>
-                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span className="navbar-toggler-icon"></span>
-                </button>
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul className="navbar-nav ml-auto">
                         {this.props.loggedIn ? userLinks.map((link, index) => {
@@ -44,14 +50,19 @@ class NavBar extends Component {
                                 {link}
                             </li>)
                         })}
-                        {this.props.loggedIn ? <li className="nav-item"><a className="nav-link text-white" style={{ cursor: 'pointer' }} onClick={this.logoutHandler}>Logout</a></li> : null}
                     </ul>
                 </div>
+                <SideDrawer showDrawer={this.state.showSideDrawer} toggleDrawer={this.toggleDrawer} links={this.props.loggedIn ? userLinks : nonUserLinks} />
+                {this.props.loggedIn ? <li className="nav-item"><a className="nav-link text-white ml-auto" style={{ cursor: 'pointer' }} onClick={this.logoutHandler}>Logout</a></li> : <Link className="nav-link text-white ml-auto" to="/login">Login</Link>}
                 <IconButton className="ml-auto" style={{ 'outline': 'none' }} onClick={this.props.darkModeToggler}>
                     <SvgIcon style={{ 'color': '#ffffff' }}>
                         {path}
                     </SvgIcon>
                 </IconButton>
+                <Button className="text-white ml-auto" onClick={()=>this.toggleDrawer(true)}
+                    data-toggle="collapse">
+                    <MenuIcon />
+                </Button>
             </div>
         )
     }

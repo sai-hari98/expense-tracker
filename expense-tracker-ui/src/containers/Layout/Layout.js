@@ -15,8 +15,9 @@ class Layout extends Component {
 
     componentDidMount() {
         let token = localStorage.getItem('token');
+        let userId = localStorage.getItem('userId');
         if (token !== null) {
-            this.props.setToken(token);
+            this.props.setToken(token, userId);
         }
     }
 
@@ -54,7 +55,7 @@ const mapStateToProps = state => {
 const mapActionsToProps = dispatch => {
     return {
         setDarkMode: () => dispatch(actions.toggleDarkMode()),
-        setToken: (token) => dispatch(actions.setToken(token))
+        setToken: (token, userId) => dispatch(actions.setToken(token, userId))
     }
 }
 

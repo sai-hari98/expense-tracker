@@ -2,15 +2,8 @@ import actionTypes from "../actions/actionTypes";
 
 const initialState = {
     token: null,
-    loggedIn: false
-}
-
-const setToken = (token, loggedIn) => {
-    if (loggedIn) {
-        localStorage.setItem('token', token);
-    } else {
-        localStorage.removeItem('token');
-    }
+    loggedIn: false,
+    userId: null
 }
 
 const reducer = (state = initialState, action) => {
@@ -18,13 +11,13 @@ const reducer = (state = initialState, action) => {
     switch (action.type) {
         case actionTypes.SET_TOKEN:
             stateCopy.loggedIn = true;
-            setToken(action.payload.token, true);
             stateCopy.token = action.payload.token;
+            stateCopy.userId = action.payload.userId;
             return stateCopy;
         case actionTypes.LOGOUT:
             stateCopy.loggedIn = false;
             stateCopy.token = null;
-            setToken(null, false);
+            stateCopy.userId = null;
             return stateCopy;
         default:
             return stateCopy;

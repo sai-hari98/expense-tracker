@@ -44,8 +44,8 @@ class Auth extends Component {
         let encodedAuth = new Buffer(this.state.authForm.email.value + ':' + this.state.authForm.password.value).toString('base64');
         this.setState({ progress: true });
         axios.get('/user-service/login', { headers: { 'Authorization': 'Basic ' + encodedAuth } }).then(response => {
-            utility.setToken(response.data.token, true);
-            this.props.setToken(response.data.token);
+            utility.setCredentials(response.data.token, response.data.userId, true);
+            this.props.setToken(response.data.token, response.data.userId);
             this.setState({ progress: false });
             this.props.history.replace('/');
         }).catch(error => {
@@ -104,7 +104,7 @@ class Auth extends Component {
 
 const mapActionsToProps = dispatch => {
     return {
-        setToken: (token) => dispatch(actions.setToken(token))
+        setToken: (token, userId) => dispatch(actions.setToken(token, userId))
     }
 }
 

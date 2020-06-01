@@ -128,10 +128,12 @@ export const inputFieldStyles = () => {
     }
 }
 
-export const setToken = (token, loggedIn) => {
+export const setCredentials = (token, userId, loggedIn) => {
     if (loggedIn) {
         localStorage.setItem('token', token);
+        localStorage.setItem('userId', userId);
     } else {
         localStorage.removeItem('token');
+        localStorage.removeItem('userId');
     }
 }
