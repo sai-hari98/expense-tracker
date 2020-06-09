@@ -81,8 +81,97 @@ export const signupFormGenerator = () => {
             },
             valid: false,
             dirty: false
+        },
+        incomeSources: {
+            value: [],
+            valid: false,
+            dirty: false
+        },
+        billReminders: {
+            value: [],
+            valid: false,
+            dirty: false
         }
     }
+}
+
+export const getIncomeSourceForm = () => {
+    return {
+        sourceName: {
+            value: '',
+            validation: {
+                required: true,
+                maxlength: 100,
+                minlength: 1
+            },
+            dirty: false,
+            valid: false
+        },
+        amount: {
+            value: '',
+            validation: {
+                required: true,
+                numeric: true
+            },
+            dirty: false,
+            valid: false
+        },
+        incomeCategory: {
+            value: '',
+            validation: {
+                required: true,
+                dropDown: true
+            },
+            valid: false,
+            dirty: false
+        }
+    }
+}
+
+export const getBillReminderForm = () => {
+    let today = new Date();
+    let defaultDate = new Date(today.getFullYear(), today.getMonth(), 5)
+    return {
+        billDescription: {
+            value: '',
+            validation: {
+                required: true,
+                maxlength: 100,
+                minlength: 1
+            },
+            dirty: false,
+            valid: false
+        },
+        amount: {
+            value: '',
+            validation: {
+                required: true,
+                numeric: true
+            },
+            dirty: false,
+            valid: false
+        },
+        deadlineDate: {
+            value: defaultDate,
+            validation: {
+                required: true
+            },
+            dirty: false,
+            valid: true
+        },
+        expenseCategory: {
+            value: '',
+            validation: {
+                required: true,
+                dropDown: true
+            },
+            valid: false,
+            dirty: false
+        }
+    };
+}
+export const checkInvalid = (fieldName, form) => {
+    return !form[fieldName].valid && form[fieldName].dirty;
 }
 
 const validateEmail = (email) => {
@@ -93,7 +182,6 @@ const validateEmail = (email) => {
 export const checkFormValidity = (form) => {
     let valid = true;
     for (let key of Object.keys(form)) {
-        // console.log(key + ' : ' + form[key].valid);
         valid = valid && form[key].valid;
     }
     return valid;
@@ -122,11 +210,12 @@ export const validateFormField = (value, validation) => {
     return valid;
 }
 
-export const inputFieldStyles = () => {
+export const inputFieldStyle = (darkMode) => {
     return {
-        color: '#000000'
+        color: darkMode ? '#ffffff' : '#000000',
+        fontFamily: 'Noto Sans JP'
     }
-}
+};
 
 export const setCredentials = (token, userId, loggedIn) => {
     if (loggedIn) {

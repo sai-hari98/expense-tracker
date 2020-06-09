@@ -58,7 +58,6 @@ class Auth extends Component {
     }
 
     render() {
-        let textFieldStyle = utility.inputFieldStyles();
         return (
             <div className="container">
                 <div className="row justify-content-center">
@@ -80,17 +79,29 @@ class Auth extends Component {
                         </div>
                         <div className="row mt-2">
                             <div className="col-12 text-center">
-                                <TextField id="email" helperText={this.checkInvalid('email') ? 'Invalid Email' : ' '} error={this.checkInvalid('email')} InputProps={{ style: { ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' } }} InputLabelProps={{ style: { ...textFieldStyle, fontFamily: 'Noto Sans JP' } }} label="E-Mail" variant="filled" value={this.state.authForm.email.value} onChange={(event) => this.inputChangeHandler(event, 'email')} fullWidth />
+                                <TextField id="email" helperText={this.checkInvalid('email') ? 'Invalid Email' : ' '}
+                                    error={this.checkInvalid('email')}
+                                    label="E-Mail"
+                                    variant="filled"
+                                    value={this.state.authForm.email.value}
+                                    onChange={(event) => this.inputChangeHandler(event, 'email')} fullWidth />
                             </div>
                         </div>
                         <div className="row mt-2">
                             <div className="col-12 text-center">
-                                <TextField id="password" helperText={this.checkInvalid('password') ? 'Password should be of 8-16 characters' : ' '} error={this.checkInvalid('password')} InputProps={{ style: { ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' } }} InputLabelProps={{ style: { ...textFieldStyle, fontFamily: 'Noto Sans JP' } }} type="password" label="Password" variant="filled" value={this.state.authForm.password.value} onChange={(event) => this.inputChangeHandler(event, 'password')} fullWidth />
+                                <TextField id="password"
+                                    helperText={this.checkInvalid('password') ? 'Password should be of 8-16 characters' : ' '}
+                                    error={this.checkInvalid('password')}
+                                    type="password"
+                                    label="Password"
+                                    variant="filled"
+                                    value={this.state.authForm.password.value}
+                                    onChange={(event) => this.inputChangeHandler(event, 'password')} fullWidth />
                             </div>
                         </div>
                         <div className="row mt-2">
                             <div className="col-12 text-center">
-                                <Button variant="contained" style={{ backgroundColor: '#E0E0E0' }} disabled={!this.state.formValid} onClick={this.loginHandler}>Login</Button> <br /><br />
+                                <Button variant="contained" disabled={!this.state.formValid} onClick={this.loginHandler}>Login</Button> <br /><br />
                                 <Link to="/signup" style={{ textDecoration: 'none' }}>New User? Click here to signup</Link>
                             </div>
                         </div>
@@ -107,5 +118,9 @@ const mapActionsToProps = dispatch => {
         setToken: (token, userId) => dispatch(actions.setToken(token, userId))
     }
 }
-
-export default connect(null, mapActionsToProps)(Auth);
+const mapStateToProps = state => {
+    return {
+        darkMode: state.app.darkMode
+    }
+}
+export default connect(mapStateToProps, mapActionsToProps)(Auth);

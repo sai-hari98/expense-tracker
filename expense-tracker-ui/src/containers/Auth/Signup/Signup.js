@@ -1,71 +1,95 @@
-import React, { Component } from 'react';
-import TextField from '@material-ui/core/TextField';
+import React, { PureComponent } from 'react';
 import * as utility from '../../../common/utility';
-import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
+import UserDetails from '../../../components/Site/Signup/UserDetails';
+import MonthlyIncome from '../../../components/Site/Signup/MonthlyIncome/MonthlyIncome';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
-import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
-import DateFnsUtils from '@date-io/date-fns';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import axios from '../../../expense-tracker-axios';
-class Signup extends Component {
+import Stepper from '../../../components/Site/Signup/Stepper';
+import MonthlyReminders from '../../../components/Site/Signup/MonthlyReminders/MonthlyReminders';
+class Signup extends PureComponent {
 
     state = {
         authForm: utility.signupFormGenerator(),
+        incomeForm: utility.getIncomeSourceForm(),
+        billReminderForm: utility.getBillReminderForm(),
         currencyArray: [],
+        incomeCategories: [],
+        expenseCategories: [],
         formValid: false,
         openSnackbar: false,
         errorMessage: '',
         severity: '',
+        activeStep: 0,
         progress: false
     }
 
     componentDidMount() {
-        axios.get("/common-service/currency").then(response => {
-            this.setState({ currencyArray: response.data });
+        axios.get("/common-service/signup/data").then(response => {
+            let currencyArray = response.data.currencyArray;
+            let incomeCategories = response.data.incomeCategories;
+            let expenseCategories = response.data.expenseCategories;
+            this.setState({ currencyArray: currencyArray, incomeCategories: incomeCategories, expenseCategories: expenseCategories });
         }).catch(error => {
             console.log(error);
-        })
+        });
     }
 
-    inputChangeHandler = (event, fieldName) => {
-        let authFormCopy = { ...this.state.authForm };
-        let inputFieldCopy = { ...authFormCopy[fieldName] };
+    inputChangeHandler = (event, fieldName, formName) => {
+        let formCopy = { ...this.state[formName] };
+        let inputFieldCopy = { ...formCopy[fieldName] };
         inputFieldCopy.value = event.target.value;
         inputFieldCopy.valid = utility.validateFormField(event.target.value, inputFieldCopy.validation);
         inputFieldCopy.dirty = true;
-        authFormCopy[fieldName] = inputFieldCopy;
-        this.setState({ authForm: authFormCopy }, () => {
+        formCopy[fieldName] = inputFieldCopy;
+        this.setState({ [formName]: formCopy }, () => {
             this.setState({ formValid: utility.checkFormValidity(this.state.authForm) });
         });
     }
 
-    dateOfBirthChangeHandler = (date) => {
-        let authFormCopy = { ...this.state.authForm };
-        let inputFieldCopy = { ...authFormCopy['dateOfBirth'] };
-        console.log(inputFieldCopy);
+    dateChangeHandler = (date, fieldName, formName) => {
+        let formCopy = { ...this.state[formName] };
+        let inputFieldCopy = { ...formCopy[fieldName] };
         inputFieldCopy.value = date;
-        console.log(date);
-        authFormCopy['dateOfBirth'] = inputFieldCopy;
-        this.setState({ authForm: authFormCopy });
+        formCopy[fieldName] = inputFieldCopy;
+        this.setState({ [formName]: formCopy });
     }
 
-    currencyItems = () => {
-        return this.state.currencyArray.map(currency => {
-            return <MenuItem value={currency} key={currency.id} selected={currency.id === this.state.authForm.currency.value.id}>{currency.currencyName}</MenuItem>
+    nextHandler = (next) => {
+        this.setState((prevState) => {
+            let activeStp = next ? (prevState.activeStep + 1) : (prevState.activeStep - 1);
+            return { ...prevState, activeStep: activeStp }
         });
-    }
-
-    checkInvalid = (fieldName) => {
-        return !this.state.authForm[fieldName].valid && this.state.authForm[fieldName].dirty;
     }
 
     handleSnackbarClose = () => {
         this.setState({ openSnackbar: false });
+    }
+
+    addMonthlyData = (data, arrayName) => {
+        let formData = { ...this.state.authForm };
+        let arrayData = [...formData[arrayName].value];
+        arrayData.push(data);
+        formData[arrayName].value = arrayData;
+        formData[arrayName].dirty = true;
+        formData[arrayName].valid = true;
+        console.log('formData', formData);
+        let newForm = arrayName === 'incomeSources' ? utility.getIncomeSourceForm() : utility.getBillReminderForm();
+        let formName = arrayName === 'incomeSources' ? 'incomeForm' : 'billReminderForm';
+        this.setState({ authForm: formData, [formName]: newForm, formValid: utility.checkFormValidity(this.state.authForm) });
+    }
+
+    removeMonthlyHandler = (index, arrayName) => {
+        let formData = { ...this.state.authForm };
+        let arrayData = [...formData[arrayName].value];
+        arrayData.splice(index, 1);
+        formData[arrayName].value = arrayData;
+        if (arrayData.length <= 0) {
+            formData[arrayName].valid = false;
+        }
+        this.setState({ authForm: formData, formValid: utility.checkFormValidity(this.state.authForm) });
     }
 
     signupHandler = () => {
@@ -73,17 +97,24 @@ class Signup extends Component {
         if (authForm.password.value !== authForm.confirmPassword.value) {
             this.setState({ openSnackbar: true, errorMessage: 'Passwords do not match', severity: 'error' });
         } else {
+            console.log("Password: " + this.state.authForm.password.value);
             this.setState({ progress: true });
             let dob = this.state.authForm.dateOfBirth.value;
             let dobMonth = dob.getMonth() + 1 < 10 ? "0" + (dob.getMonth() + 1) : (dob.getMonth() + 1);
             let data = {
-                firstName: this.state.authForm.firstName.value,
-                lastName: this.state.authForm.lastName.value,
-                email: this.state.authForm.email.value,
-                phoneNumber: this.state.authForm.phoneNumber.value,
-                dateOfBirth: dob.getDate() + "/" + dobMonth + "/" + dob.getFullYear(),
+                user: {
+                    firstName: this.state.authForm.firstName.value,
+                    lastName: this.state.authForm.lastName.value,
+                    phoneNumber: this.state.authForm.phoneNumber.value,
+                    email: this.state.authForm.email.value,
+                    dateOfBirth: dob.getDate() + "/" + dobMonth + "/" + dob.getFullYear(),
+                    currency: this.state.authForm.currency.value,
+                    password:this.state.authForm.password.value
+                },
                 currency: this.state.authForm.currency.value,
                 password: this.state.authForm.password.value,
+                incomeSources: this.state.authForm.incomeSources.value,
+                billReminders: this.state.authForm.billReminders.value,
             }
             axios.post('/user-service/users/create', data).then(
                 response => {
@@ -96,11 +127,38 @@ class Signup extends Component {
                         this.setState({ openSnackbar: true, errorMessage: response.data.message, severity: 'error', progress: false });
                     }
                 }
-            ).catch()
+            ).catch((error) => {
+                this.setState({ openSnackbar: true, errorMessage: 'An Error Occurred. Try Again', severity: 'error', progress: false })
+            });
         }
     }
+
+    getStepContent = () => {
+        let stepContent = [
+            <UserDetails
+                authForm={this.state.authForm}
+                inputChangeHandler={this.inputChangeHandler}
+                dateChangeHandler={this.dateChangeHandler}
+                currencyArray={this.state.currencyArray}
+            />,
+            <MonthlyIncome
+                incomeSources={this.state.authForm.incomeSources.value}
+                form={this.state.incomeForm}
+                inputChangeHandler={this.inputChangeHandler}
+                incomeCategories={this.state.incomeCategories}
+                add={this.addMonthlyData} remove={this.removeMonthlyHandler} />,
+            <MonthlyReminders
+                billReminders={this.state.authForm.billReminders.value}
+                form={this.state.billReminderForm}
+                inputChangeHandler={this.inputChangeHandler}
+                expenseCategories={this.state.expenseCategories}
+                dateChangeHandler={this.dateChangeHandler}
+                add={this.addMonthlyData} remove={this.removeMonthlyHandler} />
+        ];
+        return stepContent;
+    }
+
     render() {
-        let textFieldStyle = utility.inputFieldStyles();
         return (
             <div className="container">
                 <Snackbar elevation={6} variant="filled" anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={this.state.openSnackbar} autoHideDuration={6000} onClose={this.handleSnackbarClose}>
@@ -109,7 +167,7 @@ class Signup extends Component {
                     </Alert>
                 </Snackbar>
                 <div className="row justify-content-center">
-                    <div className="col-6">
+                    <div className="col-8">
                         <div className="row mt-5">
                             <div className="col-12">
                                 {this.state.progress ? <LinearProgress /> : " "}
@@ -120,64 +178,14 @@ class Signup extends Component {
                                 Signup
                         </h4>
                         </div>
+                        <Stepper stepContent={this.getStepContent()} activeStep={this.state.activeStep} />
                         <div className="row mt-2">
-                            <div className="col-6 text-center">
-                                <TextField helperText={this.checkInvalid('firstName') ? 'First Name should not be empty' : ' '} error={this.checkInvalid('firstName')} id="first-name" InputProps={{ style: { ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' } }} InputLabelProps={{ style: { ...textFieldStyle, fontFamily: 'Noto Sans JP' } }} label="First Name" variant="filled" color="primary" value={this.state.authForm.firstName.value} onChange={(event) => this.inputChangeHandler(event, 'firstName')} fullWidth />
+                            <div className="col-6">
+                                <Button variant="contained" disabled={this.state.activeStep <= 0} onClick={() => this.nextHandler(false)}>Back</Button>
+                                <Button className="ml-1" variant="contained" disabled={this.state.activeStep >= 2} onClick={() => this.nextHandler(true)}>Next</Button>
                             </div>
-                            <div className="col-6 text-center">
-                                <TextField helperText={this.checkInvalid('lastName') ? 'Last Name should not be empty' : ' '} error={this.checkInvalid('lastName')} id="last-name" InputProps={{ style: { ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' } }} InputLabelProps={{ style: { ...textFieldStyle, fontFamily: 'Noto Sans JP' } }} label="Last Name" variant="filled" color="primary" value={this.state.authForm.lastName.value} onChange={(event) => this.inputChangeHandler(event, 'lastName')} fullWidth />
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col-6 text-center">
-                                <TextField id="email" helperText={this.checkInvalid('email') ? 'Invalid Email' : ' '} error={this.checkInvalid('email')} InputProps={{ style: { ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' } }} InputLabelProps={{ style: { ...textFieldStyle, fontFamily: 'Noto Sans JP' } }} label="E-Mail" variant="filled" color="primary" value={this.state.authForm.email.value} onChange={(event) => this.inputChangeHandler(event, 'email')} fullWidth />
-                            </div>
-                            <div className="col-6 text-center">
-                                <TextField id="phone-number" helperText={this.checkInvalid('phoneNumber') ? 'Phone Number is of 10 numbers' : ' '} error={this.checkInvalid('phoneNumber')} InputProps={{ style: { ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' } }} InputLabelProps={{ style: { ...textFieldStyle, fontFamily: 'Noto Sans JP' } }} label="Phone Number" variant="filled" color="primary" value={this.state.authForm.phoneNumber.value} onChange={(event) => this.inputChangeHandler(event, 'phoneNumber')} fullWidth />
-                            </div>
-                        </div>
-                        <div className="row mt-2">
-                            <div className="col-6 text-center">
-                                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                    <DatePicker
-                                        style={{ ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP', borderRadius: '3px' }}
-                                        InputProps={{ style: { fontFamily: 'Noto Sans JP' }, className: 'pl-1 pb-1 pt-1' }}
-                                        InputLabelProps={{ style: { fontFamily: 'Noto Sans JP' }, className: 'mt-1 ml-1' }}
-                                        disableFuture
-                                        openTo="year"
-                                        format="dd/MM/yyyy"
-                                        label="Date of Birth"
-                                        views={["year", "month", "date"]}
-                                        value={this.state.authForm.dateOfBirth.value}
-                                        fullWidth
-                                        onChange={this.dateOfBirthChangeHandler}
-                                    />
-                                </MuiPickersUtilsProvider>
-                            </div>
-                            <div className="col-6 text-center">
-                                <FormControl variant="filled" fullWidth>
-                                    <InputLabel id="demo-simple-select-filled-label" style={{ ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' }}>Currency</InputLabel>
-                                    <Select style={{ ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' }}
-                                        labelId="demo-simple-select-filled-label"
-                                        id="demo-simple-select-filled"
-                                        value={this.state.authForm.currency.value}
-                                        onChange={(event) => this.inputChangeHandler(event, 'currency')}>
-                                        {this.currencyItems()}
-                                    </Select>
-                                </FormControl>
-                            </div>
-                        </div>
-                        <div className="row mt-2">
-                            <div className="col-6 text-center">
-                                <TextField helperText={this.checkInvalid('password') ? 'Password should be of 8-16 characters' : ' '} error={this.checkInvalid('password')} id="password" InputProps={{ style: { ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' } }} InputLabelProps={{ style: { ...textFieldStyle, fontFamily: 'Noto Sans JP' } }} type="password" label="Password" variant="filled" color="primary" value={this.state.authForm.password.value} onChange={(event) => this.inputChangeHandler(event, 'password')} fullWidth />
-                            </div>
-                            <div className="col-6 text-center">
-                                <TextField error={this.checkInvalid('confirmPassword')} helperText={this.checkInvalid('confirmPassword') ? 'Password should be of 8-16 characters' : ' '} id="confirm-password" InputProps={{ style: { ...textFieldStyle, backgroundColor: '#ffffff', fontFamily: 'Noto Sans JP' } }} InputLabelProps={{ style: { ...textFieldStyle, fontFamily: 'Noto Sans JP' } }} type="password" label="Confirm Password" variant="filled" color="primary" value={this.state.authForm.confirmPassword.value} onChange={(event) => this.inputChangeHandler(event, 'confirmPassword')} fullWidth />
-                            </div>
-                        </div>
-                        <div className="row mt-2">
-                            <div className="col-12 text-center">
-                                <Button variant="contained" style={{ backgroundColor: '#E0E0E0' }} disabled={!this.state.formValid} onClick={this.signupHandler}>Signup</Button>
+                            <div className="col-6 justify-content-right">
+                                <Button className="text-right" variant="contained" disabled={!this.state.formValid} onClick={this.signupHandler}>Signup</Button>
                             </div>
                         </div>
                     </div>

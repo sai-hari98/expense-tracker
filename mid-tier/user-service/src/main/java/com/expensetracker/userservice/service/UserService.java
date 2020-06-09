@@ -4,43 +4,55 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.expensetracker.userservice.constants.ErrorMessages;
+import com.expensetracker.userservice.constants.SuccessMessages;
+import com.expensetracker.userservice.dao.MonthlyBillReminderDao;
+import com.expensetracker.userservice.dao.MonthlyIncomeSourceDao;
+import com.expensetracker.userservice.dao.UserDao;
+import com.expensetracker.userservice.dto.UserSignupRequestDto;
 import com.expensetracker.userservice.entity.User;
-import com.expensetracker.userservice.repository.UserRepository;
+import com.expensetracker.userservice.exception.UserServiceException;
 
 @Service
 public class UserService {
 
 	@Autowired
-	BCryptPasswordEncoder passwordEncoder;
+	private UserDao userDao;
 
 	@Autowired
-	private UserRepository userRepository;
+	private MonthlyIncomeSourceDao incomeSourceDao;
 
-	@Transactional
-	public Map<String, Object> createUser(User user) {
+	@Autowired
+	private MonthlyBillReminderDao billReminderDao;
+
+	public Map<String, Object> createUser(UserSignupRequestDto userSignupRequestDto) {
 		Map<String, Object> response = new HashMap<>();
-		if (getUserByEmail(user.getEmail()) == null) {
+		try {
+			User user = userSignupRequestDto.getUser();
 			UUID uuid = UUID.randomUUID();
 			user.setUserId(uuid.toString().replaceAll("-", ""));
-			user.setPassword(passwordEncoder.encode(user.getPassword()));
-			userRepository.save(user);
+			userDao.createUser(user);
+			userSignupRequestDto.getIncomeSources().forEach(incomeSource -> {
+				incomeSource.setUser(user);
+				incomeSourceDao.addIncomeSource(incomeSource);
+			});
+			userSignupRequestDto.getBillReminders().forEach(billReminder -> {
+				billReminder.setUser(user);
+				billReminderDao.addBillReminder(billReminder);
+			});
 			response.put("status", true);
-			response.put("message", "User Created Successfully");
-		} else {
+			response.put("message", SuccessMessages.USER_CREATED);
+		} catch (UserServiceException userServiceException) {
 			response.put("status", false);
-			response.put("message", "User already exist");
+			response.put("message", ErrorMessages.USER_EXISTS);
 		}
 		return response;
 	}
 
-	@Transactional
 	public User getUserByEmail(String email) {
-		return userRepository.findByEmail(email);
+		return userDao.getUserByEmail(email);
 	}
 }

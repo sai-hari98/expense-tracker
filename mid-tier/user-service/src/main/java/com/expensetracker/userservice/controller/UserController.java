@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.expensetracker.userservice.dto.UserSignupRequestDto;
 import com.expensetracker.userservice.entity.User;
 import com.expensetracker.userservice.service.UserService;
 
@@ -23,16 +24,12 @@ public class UserController {
 	private UserService userService;
 
 	@PostMapping("/create")
-	public Map<String, Object> createUser(@RequestBody @Valid User user) {
-		System.out.println(user.toString());
-		return userService.createUser(user);
+	public Map<String, Object> createUser(@RequestBody @Valid UserSignupRequestDto userSignupRequestDto) {
+		return userService.createUser(userSignupRequestDto);
 	}
 
 	@GetMapping("/{email}")
-	public User getUserByEmail(@PathVariable String email) {
-		System.out.println("Email: "+email);
-		User user = userService.getUserByEmail(email);
-		System.out.println(user.toString());
-		return user;
+	public User getUserByEmail(@PathVariable(name = "email") String email) {
+		return userService.getUserByEmail(email);
 	}
 }

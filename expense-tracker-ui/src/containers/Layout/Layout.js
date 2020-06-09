@@ -6,6 +6,9 @@ import { Route, BrowserRouter } from 'react-router-dom';
 import Auth from '../Auth/Auth';
 import * as actions from '../../store/actions/index';
 import Signup from '../Auth/Signup/Signup';
+import { createMuiTheme } from "@material-ui/core/styles";
+import { ThemeProvider } from "@material-ui/styles";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 class Layout extends Component {
 
@@ -21,6 +24,21 @@ class Layout extends Component {
         }
     }
 
+    getThemeObject = () => {
+        let theme = createMuiTheme({
+            typography: {
+                "fontFamily": `"Noto Sans JP",  sans-serif`,
+                "fontSize": 15,
+                "fontWeightLight": 300,
+                "fontWeightRegular": 400,
+                "fontWeightMedium": 500
+            },
+            palette: {
+                type: this.props.darkMode ? "dark" : "light"
+            }
+        });
+        return theme;
+    }
     darkModeHandler = () => {
         let darkMode = this.state.darkMode;
         this.setState({ darkMode: !darkMode });
@@ -29,7 +47,7 @@ class Layout extends Component {
 
     render() {
         if (this.state.darkMode) {
-            document.body.style.backgroundColor = '#34495e';
+            document.body.style.backgroundColor = '#2f3640';
             document.body.style.color = '#ffffff';
         } else {
             document.body.style.backgroundColor = '#ffffff';
@@ -37,10 +55,13 @@ class Layout extends Component {
         }
         return (
             <BrowserRouter>
-                <NavBar darkMode={this.state.darkMode} darkModeToggler={this.darkModeHandler} />
-                {!this.props.loggedIn ? <Route path="/" exact component={NonUser}></Route> : null}
-                <Route path="/login" exact component={Auth}></Route>
-                <Route path="/signup" exact component={Signup}></Route>
+                <ThemeProvider theme={this.getThemeObject()}>
+                    <CssBaseline />
+                    <NavBar darkMode={this.state.darkMode} darkModeToggler={this.darkModeHandler} />
+                    {!this.props.loggedIn ? <Route path="/" exact component={NonUser}></Route> : null}
+                    <Route path="/login" exact component={Auth}></Route>
+                    <Route path="/signup" exact component={Signup}></Route>
+                </ThemeProvider>
             </BrowserRouter>
         )
     }
@@ -48,7 +69,8 @@ class Layout extends Component {
 
 const mapStateToProps = state => {
     return {
-        loggedIn: state.auth.loggedIn
+        loggedIn: state.auth.loggedIn,
+        darkMode: state.app.darkMode
     }
 }
 

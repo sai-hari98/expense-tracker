@@ -6,3 +6,7 @@ body{
 button{
   border-radius:3px;
 }
+
+.font-14{
+  font-size: 14px;
+}

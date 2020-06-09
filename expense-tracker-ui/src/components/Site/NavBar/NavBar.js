@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import MenuIcon from '@material-ui/icons/Menu';
 import SvgIcon from '@material-ui/core/SvgIcon';
@@ -23,6 +23,7 @@ class NavBar extends Component {
     }
 
     logoutHandler = () => {
+        console.log(this.props);
         this.props.logout();
         utility.setCredentials(null, null, false);
         this.props.history.replace("/");
@@ -53,13 +54,13 @@ class NavBar extends Component {
                     </ul>
                 </div>
                 <SideDrawer showDrawer={this.state.showSideDrawer} toggleDrawer={this.toggleDrawer} links={this.props.loggedIn ? userLinks : nonUserLinks} />
-                {this.props.loggedIn ? <li className="nav-item"><a className="nav-link text-white ml-auto" style={{ cursor: 'pointer' }} onClick={this.logoutHandler}>Logout</a></li> : <Link className="nav-link text-white ml-auto" to="/login">Login</Link>}
-                <IconButton className="ml-auto" style={{ 'outline': 'none' }} onClick={this.props.darkModeToggler}>
-                    <SvgIcon style={{ 'color': '#ffffff' }}>
+                {this.props.loggedIn ? <a className="nav-link text-white ml-auto" style={{ cursor: 'pointer' }} onClick={this.logoutHandler}>Logout</a> : <Link className="nav-link text-white ml-auto" to="/login">Login</Link>}
+                <IconButton className="ml-auto text-white" style={{ 'outline': 'none', 'fontSize': '25' }} onClick={this.props.darkModeToggler}>
+                    <SvgIcon>
                         {path}
                     </SvgIcon>
                 </IconButton>
-                <Button className="text-white ml-auto" onClick={()=>this.toggleDrawer(true)}
+                <Button className="text-white ml-auto" onClick={() => this.toggleDrawer(true)} style={{ 'fontSize': '25' }}
                     data-toggle="collapse">
                     <MenuIcon />
                 </Button>
@@ -79,4 +80,4 @@ const mapActionsToProps = dispatch => {
         logout: () => dispatch(actions.logout())
     }
 }
-export default connect(mapStateToProps, mapActionsToProps)(NavBar);
+export default connect(mapStateToProps, mapActionsToProps)(withRouter(NavBar));

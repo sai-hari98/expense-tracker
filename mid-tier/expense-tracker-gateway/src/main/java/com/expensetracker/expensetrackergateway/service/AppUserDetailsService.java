@@ -18,13 +18,10 @@ public class AppUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		System.out.println("Username "+username);
 		User user = userService.getUserByEmail(username);
 		if (user == null) {
-			System.out.println("User not received");
 			throw new UsernameNotFoundException("User not found");
 		}
-		System.out.println(user.toString());
 		return new AppUserDetails(user);
 	}
 
