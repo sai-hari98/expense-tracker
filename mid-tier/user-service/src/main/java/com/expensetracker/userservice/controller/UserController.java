@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +22,8 @@ import com.expensetracker.userservice.service.UserService;
 @RestController
 public class UserController {
 
+	public static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
 	@Autowired
 	private UserService userService;
 
@@ -28,8 +32,15 @@ public class UserController {
 		return userService.createUser(userSignupRequestDto);
 	}
 
-	@GetMapping("/{email}")
+	@GetMapping("/{email:.+}")
 	public User getUserByEmail(@PathVariable(name = "email") String email) {
-		return userService.getUserByEmail(email);
+		LOGGER.info("Email: " + email);
+		User user = userService.getUserByEmail(email);
+		return user;
+	}
+	
+	@GetMapping("/users/userId/{userId}")
+	public User getUserByUserId(@PathVariable(name="userId")String userId) {
+		return userService.getUserByUserId(userId);
 	}
 }

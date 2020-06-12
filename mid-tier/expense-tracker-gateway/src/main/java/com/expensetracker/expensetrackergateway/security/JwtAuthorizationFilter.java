@@ -45,8 +45,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
-		//set to null because each request should be authenticated
-		//if the first request to zuul is authenticated and subsequent requests are not authenticated they are being allowed to pass
+		// set to null because each request should be authenticated
+		// if the first request to zuul is authenticated and subsequent requests are not
+		// authenticated they are being allowed to pass
 		SecurityContextHolder.getContext().setAuthentication(null);
 		if (userService == null) {
 			ServletContext servletContext = req.getServletContext();
@@ -63,6 +64,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		}
 		LOGGER.info("Authenticated");
 		UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
+		if (authentication != null) {
+			req.setAttribute("userId", authentication.getPrincipal());
+		}
 		LOGGER.info("" + authentication);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		chain.doFilter(req, res);
@@ -77,13 +81,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			try {
 				jws = Jwts.parser().setSigningKey("secretkey").parseClaimsJws(token.replace("Bearer ", ""));
 				LOGGER.info("Jws Body: " + jws.getBody().toString());
-				String email = jws.getBody().getSubject();
-				LOGGER.info("Email: " + email);
-				if (email != null) {
-					User user = userService.getUserByEmail(email);
+				String userId = jws.getBody().getSubject();
+				LOGGER.info("UserId: " + userId);
+				if (userId != null) {
+					User user = userService.getUserByEmail(userId);
 					LOGGER.info("First Name: " + user.getFirstName());
 					if (user != null) {
-						return new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
+						return new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
 					}
 				}
 			} catch (JwtException | NullPointerException ex) {

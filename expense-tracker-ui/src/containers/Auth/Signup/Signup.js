@@ -1,14 +1,14 @@
 import React, { PureComponent } from 'react';
-import * as utility from '../../../common/utility';
-import UserDetails from '../../../components/Site/Signup/UserDetails';
-import MonthlyIncome from '../../../components/Site/Signup/MonthlyIncome/MonthlyIncome';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import axios from '../../../expense-tracker-axios';
+import * as utility from '../../../common/utility';
 import Stepper from '../../../components/Site/Signup/Stepper';
-import MonthlyReminders from '../../../components/Site/Signup/MonthlyReminders/MonthlyReminders';
+import UserDetails from '../../../components/Site/Signup/UserDetails';
+import MonthlyIncome from '../../../components/common/MonthlyIncome/MonthlyIncome';
+import MonthlyReminders from '../../../components/common/MonthlyReminders/MonthlyReminders';
 class Signup extends PureComponent {
 
     state = {

@@ -3,8 +3,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
-import Aux from '../../../../hoc/Auxillary';
-import * as utility from '../../../../common/utility';
+import Aux from '../../../hoc/Auxillary';
+import * as utility from '../../../common/utility';
 import Select from '@material-ui/core/Select';
 import { Button } from '@material-ui/core';
 import classes from './MonthlyIncome.module.css';
@@ -27,24 +27,32 @@ class MonthlyIncome extends Component {
     }
 
     getAddedSources = () => {
-        return this.props.incomeSources.map((source, index) => {
-            return (
-                <Aux key={index}>
-                    <div className="col-10 mt-1">
-                        {"Source: " + source.sourceName + " Amount: " + source.amount + " Category: " + source.incomeCategory.categoryName}
-                    </div>
-                    <div className="col-2 mt-1">
-                        <Button className="bg-danger text-white" onClick={() => this.props.remove(index, 'incomeSources')}>Remove</Button>
-                    </div>
-                </Aux>
-            );
-        })
+        if (this.props.incomeSources) {
+            if (this.props.incomeSources.length > 0) {
+                return this.props.incomeSources.map((source, index) => {
+                    return (
+                        <Aux key={index}>
+                            <div className="col-10 mt-1">
+                                {"Source: " + source.sourceName + " Amount: " + source.amount + " Category: " + source.incomeCategory.categoryName}
+                            </div>
+                            <div className="col-2 mt-1">
+                                <Button className="bg-danger text-white" onClick={() => this.props.remove(index, 'incomeSources')}>Remove</Button>
+                            </div>
+                        </Aux>
+                    );
+                })
+            } else {
+                return <span className="text-center mt-1 mb-1">Add atleast one Income Source</span>;
+            }
+        } else {
+            return null;
+        }
     }
     render() {
         return (
             <Aux>
                 <div className={"row justify-content-center " + classes['max-height']}>
-                    {this.props.incomeSources.length > 0 ? this.getAddedSources() : <span className="text-center mt-1 mb-1">Add atleast one Income Source</span>}
+                    {this.getAddedSources()}
                 </div>
                 <div className="row mt-2">
                     <div className="col-6 text-center">
@@ -74,7 +82,9 @@ class MonthlyIncome extends Component {
                             </Select>
                         </FormControl>
                     </div>
-                    <div className="col-6 text-center">
+                </div>
+                <div className="row mt-2">
+                    <div className="col-12 text-center">
                         <Button id="add-income-source"
                             onClick={this.addHandler} disabled={!utility.checkFormValidity(this.props.form)}
                             variant="contained" color="default">Add</Button>

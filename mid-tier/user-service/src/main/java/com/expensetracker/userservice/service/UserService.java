@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.expensetracker.userservice.constants.ErrorMessages;
@@ -55,4 +57,14 @@ public class UserService {
 	public User getUserByEmail(String email) {
 		return userDao.getUserByEmail(email);
 	}
+
+	public User getUserByUserId(String userId) {
+		return userDao.getUserByUserId(userId);
+	}
+
+	@Bean
+	private BCryptPasswordEncoder getPasswordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
 }

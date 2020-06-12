@@ -1,5 +1,7 @@
 package com.expensetracker.userservice.dao;
 
+import java.util.Optional;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +18,10 @@ public class UserDaoImpl implements UserDao {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	BCryptPasswordEncoder passwordEncoder;
-	
+
 	@Override
 	@Transactional
 	public void createUser(User user) throws UserServiceException {
@@ -37,4 +39,13 @@ public class UserDaoImpl implements UserDao {
 		return userRepository.findByEmail(email);
 	}
 
+	@Override
+	public User getUserByUserId(String userId) {
+		Optional<User> result = userRepository.findById(userId);
+		if (result.isPresent()) {
+			return result.get();
+		} else {
+			return null;
+		}
+	}
 }

@@ -49,10 +49,10 @@ class Auth extends Component {
             this.setState({ progress: false });
             this.props.history.replace('/');
         }).catch(error => {
-            if (error.response.status === 401) {
+            if (error.response && error.response.status === 401) {
                 this.setState({ progress: false, openSnackbar: true, errorMessage: 'Invalid Username or Password', snackbarSeverity: 'error' });
             } else {
-                this.setState({ progress: false, openSnackbar: true, errorMessage: 'Issue in server side', snackbarSeverity: 'error' });
+                this.setState({ progress: false, openSnackbar: true, errorMessage: 'An Error Occurred. Try Again', snackbarSeverity: 'error' });
             }
         });
     }

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import com.expensetracker.userservice.entity.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, String> {
+	
 	public User findByEmail(String email);
+
 }

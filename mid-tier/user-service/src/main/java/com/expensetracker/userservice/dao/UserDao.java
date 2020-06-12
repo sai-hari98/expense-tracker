@@ -11,4 +11,7 @@ public interface UserDao {
 	public void createUser(User user) throws UserServiceException;
 	
 	public User getUserByEmail(String email);
+	
+	public User getUserByUserId(String userId);
+	
 }
