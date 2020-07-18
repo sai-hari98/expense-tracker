@@ -1,28 +1,16 @@
 import React, { Component } from 'react';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
+import Aux from '../../hoc/Auxillary';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-import Aux from '../../../hoc/Auxillary';
-import * as utility from '../../../common/utility';
+import InputLabel from '@material-ui/core/InputLabel';
+import * as utility from '../../common/utility';
 import Select from '@material-ui/core/Select';
 import { Button } from '@material-ui/core';
-import classes from './MonthlyReminders.module.css';
+import MenuItem from '@material-ui/core/MenuItem';
 
-class MonthlyReminders extends Component {
-
-    addHandler = () => {
-        console.log(this.props.form.deadlineDate);
-        let data = {
-            billDescription: this.props.form.billDescription.value,
-            amount: this.props.form.amount.value,
-            expenseCategory: this.props.form.expenseCategory.value,
-            deadlineDate: this.props.form.deadlineDate.value.getDate()
-        };
-        this.props.add(data, 'billReminders');
-    }
+export default class AddMonthlyReminder extends Component{
 
     getExpenseCategoryOptions = () => {
         return this.props.expenseCategories.map(category => {
@@ -30,27 +18,10 @@ class MonthlyReminders extends Component {
         });
     }
 
-    getAddedReminders = () => {
-        return this.props.billReminders.map((reminder, index) => {
-            return (
-                <Aux key={index}>
-                    <div className="col-10 mt-1">
-                        {"Bill Description: " + reminder.billDescription + " Amount: " + reminder.amount + " Category: " + reminder.expenseCategory.categoryName}
-                    </div>
-                    <div className="col-2 mt-1">
-                        <Button className="bg-danger text-white" onClick={() => this.props.remove(index, 'billReminders')}>Remove</Button>
-                    </div>
-                </Aux>
-            );
-        })
-    }
     render() {
         let today = new Date();
         return (
             <Aux>
-                <div className={"row justify-content-center " + classes['max-height']}>
-                    {this.props.billReminders.length > 0 ? this.getAddedReminders() : <span className="text-center mt-1 mb-1">Add atleast one Bill Reminder</span>}
-                </div>
                 <div className="row mt-2">
                     <div className="col-6 text-center">
                         <TextField helperText={utility.checkInvalid('billDescription', this.props.form) ? 'Bill Description should not be empty' : ' '}
@@ -99,13 +70,11 @@ class MonthlyReminders extends Component {
                 <div className="row mt-2">
                     <div className="col-12 text-center">
                         <Button id="add-bill-reminder"
-                            onClick={this.addHandler} disabled={!utility.checkFormValidity(this.props.form)}
+                            onClick={this.props.addHandler} disabled={!utility.checkFormValidity(this.props.form)}
                             variant="contained" color="default">Add</Button>
                     </div>
                 </div>
             </Aux>
-        );
+        )
     }
 }
-
-export default MonthlyReminders;

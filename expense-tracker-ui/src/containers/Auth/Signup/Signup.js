@@ -7,8 +7,8 @@ import axios from '../../../expense-tracker-axios';
 import * as utility from '../../../common/utility';
 import Stepper from '../../../components/Site/Signup/Stepper';
 import UserDetails from '../../../components/Site/Signup/UserDetails';
-import MonthlyIncome from '../../../components/common/MonthlyIncome/MonthlyIncome';
-import MonthlyReminders from '../../../components/common/MonthlyReminders/MonthlyReminders';
+import MonthlyIncome from '../../../components/Site/Signup/MonthlyIncome/MonthlyIncome';
+import MonthlyReminders from '../../../components/Site/Signup/MonthlyReminders/MonthlyReminders';
 class Signup extends PureComponent {
 
     state = {

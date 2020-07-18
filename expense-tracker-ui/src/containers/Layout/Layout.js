@@ -9,6 +9,7 @@ import Signup from '../Auth/Signup/Signup';
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import Expense from '../Expense/Expense';
 
 class Layout extends Component {
 
@@ -28,7 +29,7 @@ class Layout extends Component {
         let theme = createMuiTheme({
             typography: {
                 "fontFamily": `"Noto Sans JP",  sans-serif`,
-                "fontSize": 15,
+                "fontSize":15,
                 "fontWeightLight": 300,
                 "fontWeightRegular": 400,
                 "fontWeightMedium": 500
@@ -61,6 +62,7 @@ class Layout extends Component {
                     {!this.props.loggedIn ? <Route path="/" exact component={NonUser}></Route> : null}
                     <Route path="/login" exact component={Auth}></Route>
                     <Route path="/signup" exact component={Signup}></Route>
+                    <Route path="/expense" exact component={Expense}></Route>
                 </ThemeProvider>
             </BrowserRouter>
         )
