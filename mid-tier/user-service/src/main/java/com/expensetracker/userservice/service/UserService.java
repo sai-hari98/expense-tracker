@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,9 +20,15 @@ import com.expensetracker.userservice.dto.UserSignupRequestDto;
 import com.expensetracker.userservice.entity.User;
 import com.expensetracker.userservice.exception.UserServiceException;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+
 @Service
 public class UserService {
 
+	private static Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 	@Autowired
 	private UserDao userDao;
 
@@ -52,6 +60,30 @@ public class UserService {
 			response.put("message", ErrorMessages.USER_EXISTS);
 		}
 		return response;
+	}
+	
+	public User getUserByToken(String jwtToken) {
+		if (jwtToken != null) {
+			// parse the token.
+			Jws<Claims> jws;
+			try {
+				jws = Jwts.parser().setSigningKey("secretkey").parseClaimsJws(jwtToken);
+				LOGGER.info("Jws Body: " + jws.getBody().toString());
+				String userId = jws.getBody().getSubject();
+				LOGGER.info("UserId: " + userId);
+				if (userId != null) {
+					User user = getUserByUserId(userId);
+					if (user != null) {
+						return user;
+					}
+				}
+			} catch (JwtException | NullPointerException ex) {
+				LOGGER.info("Exception while parsing JWT :" + ex.getMessage());
+				return null;
+			}
+			return null;
+		}
+		return null;
 	}
 
 	public User getUserByEmail(String email) {

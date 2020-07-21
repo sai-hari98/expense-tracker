@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,8 +40,14 @@ public class UserController {
 		return user;
 	}
 	
-	@GetMapping("/users/userId/{userId}")
+	@GetMapping("/userId/{userId}")
 	public User getUserByUserId(@PathVariable(name="userId")String userId) {
 		return userService.getUserByUserId(userId);
+	}
+	
+	@GetMapping("/token")
+	public User getUserByToken(@RequestHeader(name="jwt") String jwtToken) {
+		LOGGER.info("Token is: "+jwtToken);
+		return userService.getUserByToken(jwtToken);
 	}
 }
