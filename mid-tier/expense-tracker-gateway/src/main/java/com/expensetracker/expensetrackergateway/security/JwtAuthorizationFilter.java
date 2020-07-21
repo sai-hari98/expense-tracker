@@ -11,32 +11,31 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import com.expensetracker.expensetrackergateway.client.UserServiceClient;
+import com.expensetracker.expensetrackergateway.constants.ExpenseTrackerGatewayConstants;
 import com.expensetracker.expensetrackergateway.entity.User;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
 
 /**
  * @author 805831
  *
  */
+
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private Logger LOGGER = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
 
-	@Autowired
-	private UserServiceClient userService;
+	private RestTemplate restTemplate;
 
 	public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
 		super(authenticationManager);
@@ -49,11 +48,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		// if the first request to zuul is authenticated and subsequent requests are not
 		// authenticated they are being allowed to pass
 		SecurityContextHolder.getContext().setAuthentication(null);
-		if (userService == null) {
+		if (restTemplate == null) {
 			ServletContext servletContext = req.getServletContext();
 			WebApplicationContext webApplicationContext = WebApplicationContextUtils
 					.getWebApplicationContext(servletContext);
-			userService = webApplicationContext.getBean(UserServiceClient.class);
+			restTemplate = webApplicationContext.getBean(RestTemplate.class);
 		}
 		String header = req.getHeader("Authorization");
 		LOGGER.info("Auth Header: " + header);
@@ -75,26 +74,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
 		String token = request.getHeader("Authorization");
 		LOGGER.info("Token: " + token);
-		if (token != null) {
-			// parse the token.
-			Jws<Claims> jws;
-			try {
-				jws = Jwts.parser().setSigningKey("secretkey").parseClaimsJws(token.replace("Bearer ", ""));
-				LOGGER.info("Jws Body: " + jws.getBody().toString());
-				String userId = jws.getBody().getSubject();
-				LOGGER.info("UserId: " + userId);
-				if (userId != null) {
-					User user = userService.getUserByEmail(userId);
-					LOGGER.info("First Name: " + user.getFirstName());
-					if (user != null) {
-						return new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
-					}
-				}
-			} catch (JwtException | NullPointerException ex) {
-				LOGGER.info("Exception while parsing JWT :" + ex.getMessage());
-				return null;
-			}
-			return null;
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("jwt", token.replace("Bearer ", ""));
+		HttpEntity<?> entity = new HttpEntity<Object>(headers);
+		LOGGER.info("Url: " + ExpenseTrackerGatewayConstants.USER_GET_BY_TOKEN_URL);
+		ResponseEntity<User> response = restTemplate.exchange(ExpenseTrackerGatewayConstants.USER_GET_BY_TOKEN_URL,
+				HttpMethod.GET, entity, User.class);
+		User user = response.getBody();
+		if (user != null) {
+			return new UsernamePasswordAuthenticationToken(user.getUserId(), null, new ArrayList<>());
 		}
 		return null;
 	}

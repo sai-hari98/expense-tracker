@@ -21,9 +21,9 @@ public class AppUserDetailsService implements UserDetailsService {
 	private UserServiceClient userService;
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		LOGGER.info("Email: " + username);
-		User user = userService.getUserByEmail(username);
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		LOGGER.info("Email: " + email);
+		User user = userService.getUserByEmail(email);
 		if (user == null) {
 			LOGGER.info("User not found");
 			throw new UsernameNotFoundException("User not found");
