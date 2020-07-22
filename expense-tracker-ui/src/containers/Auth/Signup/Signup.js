@@ -13,7 +13,7 @@ class Signup extends PureComponent {
 
     state = {
         authForm: utility.signupFormGenerator(),
-        incomeForm: utility.getIncomeSourceForm(),
+        monthlyIncomeForm: utility.getIncomeSourceForm(),
         billReminderForm: utility.getBillReminderForm(),
         currencyArray: [],
         incomeCategories: [],

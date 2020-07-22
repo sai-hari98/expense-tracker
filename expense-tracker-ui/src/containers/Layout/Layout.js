@@ -9,7 +9,7 @@ import Signup from '../Auth/Signup/Signup';
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Expense from '../Expense/Expense';
+import Income from '../Income/Income';
 
 class Layout extends Component {
 
@@ -62,7 +62,7 @@ class Layout extends Component {
                     {!this.props.loggedIn ? <Route path="/" exact component={NonUser}></Route> : null}
                     <Route path="/login" exact component={Auth}></Route>
                     <Route path="/signup" exact component={Signup}></Route>
-                    <Route path="/expense" exact component={Expense}></Route>
+                    <Route path="/income/add" exact component={Income}></Route>
                 </ThemeProvider>
             </BrowserRouter>
         )

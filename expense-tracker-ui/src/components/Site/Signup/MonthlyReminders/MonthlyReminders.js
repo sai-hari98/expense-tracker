@@ -31,7 +31,6 @@ class MonthlyReminders extends Component {
         })
     }
     render() {
-        let today = new Date();
         return (
             <Aux>
                 <div className={"row justify-content-center " + classes['max-height']}>

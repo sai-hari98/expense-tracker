@@ -13,7 +13,7 @@ class SideDrawer extends Component {
                 onClose={() => this.props.toggleDrawer(false)}
                 onOpen={() => this.props.toggleDrawer(true)}>
                 <div
-                    // className={clsx(classes.list)}
+                    style={{fontSize:"18px"}}
                     role="presentation"
                     onClick={() => this.props.toggleDrawer(false)}
                     onKeyDown={() => this.props.toggleDrawer(false)}
@@ -21,8 +21,8 @@ class SideDrawer extends Component {
                     <List>
                         {this.props.links.map((link, index) => {
                             return (
-                                <ListItem button key={index} onClick={() => this.props.routingHandler(link.props.to)}>
-                                    {link.props.children}
+                                <ListItem button key={index} onClick={() => this.props.routingHandler(link.to)}>
+                                    {link.text}
                                 </ListItem>
                             )
                         })}
