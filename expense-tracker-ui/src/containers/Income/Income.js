@@ -84,9 +84,13 @@ class Income extends Component {
             date: incomeDate.getDate() + "/" + month + "/" + incomeDate.getFullYear()
         }
         axios.post("/expense-service/add-income", data, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).then(response => {
-            alert('Data added successfully');
+            this.setState({openSnackbar:true, message:'Income Successfully Added', snackbarSeverity:'success'});
         }).catch(error => {
-            alert('An error occurred');
+            if (error.response && error.response.status === 401) {
+                this.setState({ progress: false, openSnackbar: true, message: 'Session has expired. Please login again', snackbarSeverity: 'error' });
+            } else {
+                this.setState({ progress: false, openSnackbar: true, message: 'An Error Occurred. Try Again', snackbarSeverity: 'error' });
+            }
         })
     }
 

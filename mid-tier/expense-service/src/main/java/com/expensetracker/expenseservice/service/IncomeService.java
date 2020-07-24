@@ -41,11 +41,7 @@ public class IncomeService {
 		income.setIncomeDescription(incomeRequest.getDescription());
 		income.setDate(incomeRequest.getDate());
 		income.setAmount(incomeRequest.getAmount());
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("jwt", jwtToken);
-		HttpEntity<?> entity = new HttpEntity<Object>(headers);
-		ResponseEntity<User> response = restTemplate.exchange(getUserUrl, HttpMethod.GET, entity, User.class);
-		User user = response.getBody();
+		User user = getUserByToken(jwtToken);
 		income.setUser(user);
 		incomeRepository.save(income);
 	}

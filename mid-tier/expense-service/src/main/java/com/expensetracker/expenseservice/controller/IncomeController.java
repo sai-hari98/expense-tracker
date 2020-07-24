@@ -23,7 +23,7 @@ public class IncomeController {
 	private IncomeService incomeService;
 
 	@PostMapping("/add-income")
-	public void addIncome(@RequestHeader(name = "Authorization") String authorization, @RequestBody AddIncomeRequestDto incomeRequest) {
+	public void addIncome(@RequestHeader(name = "Authorization") String authorization, @RequestBody @Valid AddIncomeRequestDto incomeRequest) {
 		LOGGER.info("Token: "+authorization);
 		incomeService.addIncomeForUser(incomeRequest, authorization.replace("Bearer ", ""));	
 	}
