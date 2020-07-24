@@ -7,6 +7,8 @@ import AddIncome from '../../components/Expense/AddIncome';
 import AddMonthlyIncome from '../../components/Expense/AddMonthlyIncome';
 import * as utility from '../../common/utility';
 import axios from '../../expense-tracker-axios';
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
 
 class Income extends Component {
 
@@ -48,7 +50,10 @@ class Income extends Component {
             }
         },
         monthlyIncomeForm: utility.getIncomeSourceForm(),
-        incomeCategories: []
+        incomeCategories: [],
+        openSnackbar: false,
+        message: '',
+        snackbarSeverity: ''
     }
 
     componentDidMount() {
@@ -78,11 +83,30 @@ class Income extends Component {
             incomeCategory: incomeForm.incomeCategory.value,
             date: incomeDate.getDate() + "/" + month + "/" + incomeDate.getFullYear()
         }
-        axios.post("/expense-service/add-income", data, { headers: { 'Authorization': 'Bearer '+localStorage.getItem('token') } }).then(response => {
+        axios.post("/expense-service/add-income", data, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).then(response => {
             alert('Data added successfully');
         }).catch(error => {
             alert('An error occurred');
         })
+    }
+
+    addMonthlyIncomeHandler = () => {
+        let monthlyIncomeForm = this.state.monthlyIncomeForm;
+        let data = {
+            sourceName: monthlyIncomeForm.sourceName.value,
+            amount: monthlyIncomeForm.amount.value,
+            incomeCategory: monthlyIncomeForm.incomeCategory.value
+        };
+        let headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token') };
+        axios.post('/expense-service/monthly-income/add', data, { headers: headers }).then(response => {
+            this.setState({openSnackbar:true, message:'Monthly Income Source Successfully Added', snackbarSeverity:'success'});
+        }).catch(error => {
+            if (error.response && error.response.status === 401) {
+                this.setState({ progress: false, openSnackbar: true, message: 'Session has expired. Please login again', snackbarSeverity: 'error' });
+            } else {
+                this.setState({ progress: false, openSnackbar: true, message: 'An Error Occurred. Try Again', snackbarSeverity: 'error' });
+            }
+        });
     }
 
     inputChangeHandler = (event, fieldName, formName) => {
@@ -96,9 +120,22 @@ class Income extends Component {
         this.setState({ [formName]: formCopy });
     }
 
+    handleSnackbarClose = () => {
+        this.setState({ openSnackbar: false, errorMessage: '' });
+    }
+
     render() {
         return (
             <div className="container mt-5 pt-4">
+                <div className="row justify-content-center">
+                    <div className="col-6">
+                        <Snackbar elevation={6} variant="filled" anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={this.state.openSnackbar} autoHideDuration={6000} onClose={this.handleSnackbarClose}>
+                            <Alert onClose={this.handleSnackbarClose} severity={this.state.snackbarSeverity}>
+                                {this.state.message}
+                            </Alert>
+                        </Snackbar>
+                    </div>
+                </div>
                 <Accordion style={{ backgroundColor: 'inherit', padding: '10px' }}>
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
