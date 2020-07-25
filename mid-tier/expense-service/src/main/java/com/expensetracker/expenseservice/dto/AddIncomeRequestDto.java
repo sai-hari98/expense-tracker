@@ -17,8 +17,9 @@ public class AddIncomeRequestDto {
 	@Min(value = 1, message="Amount should be a positive value")
 	private int amount;
 	@Valid
+	@NotNull(message = "Income Category cannot be null")
 	private IncomeCategory incomeCategory;
-	@NotNull
+	@NotNull(message = "Date cannot be null")
 	@JsonFormat(pattern = "dd/MM/yyyy",shape = JsonFormat.Shape.STRING)
 	private Date date;
 
@@ -29,7 +30,8 @@ public class AddIncomeRequestDto {
 	public AddIncomeRequestDto(
 			@Size(min = 1, max = 100, message = "Description is mandatory and should be within 100 characters") String description,
 			@Min(value = 1, message = "Amount should be a positive value") int amount,
-			@Valid IncomeCategory incomeCategory, Date date) {
+			@Valid @NotNull(message = "Income Category cannot be null") IncomeCategory incomeCategory,
+			@NotNull(message = "Date cannot be null") Date date) {
 		super();
 		this.description = description;
 		this.amount = amount;

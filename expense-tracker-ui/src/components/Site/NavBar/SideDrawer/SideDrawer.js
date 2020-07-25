@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
+import Divider from '@material-ui/core/Divider';
+import Aux from '../../../../hoc/Auxillary';
+import classes from './SideDrawer.module.css';
 
 class SideDrawer extends Component {
 
@@ -13,20 +16,27 @@ class SideDrawer extends Component {
                 onClose={() => this.props.toggleDrawer(false)}
                 onOpen={() => this.props.toggleDrawer(true)}>
                 <div
-                    style={{fontSize:"18px"}}
+                    className={classes['drawer-width']}
                     role="presentation"
                     onClick={() => this.props.toggleDrawer(false)}
                     onKeyDown={() => this.props.toggleDrawer(false)}
                 >
-                    <List>
-                        {this.props.links.map((link, index) => {
-                            return (
-                                <ListItem button key={index} onClick={() => this.props.routingHandler(link.to)}>
-                                    {link.text}
-                                </ListItem>
-                            )
-                        })}
-                    </List>
+                    {this.props.links.map((linkItems, listIndex) => {
+                        return (
+                            <Aux key={listIndex}>
+                                <List>
+                                    {linkItems.map((link, eleIndex) => {
+                                        return (
+                                            <ListItem button key={eleIndex} onClick={() => this.props.routingHandler(link.to)}>
+                                                {link.text}
+                                            </ListItem>
+                                        )
+                                    })}
+                                </List>
+                                {this.props.links.length > 1 && (listIndex!==(this.props.links.length-1)) ? <Divider /> : null}
+                            </Aux>
+                        )
+                    })}
                 </div>
             </SwipeableDrawer>
         )

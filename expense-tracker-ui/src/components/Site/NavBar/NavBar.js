@@ -14,7 +14,8 @@ const nonUserLinks = [
 ];
 
 const userLinks = [
-    {to:"/income/add",text:"Add Income/Expense"}
+    [{to:"/income/add",text:"Add Income/Expense"}],
+    [{to:"",text:"My Profile"}]
 ]
 
 class NavBar extends Component {
