@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.expensetracker.userservice.constants.ErrorMessages;
+import com.expensetracker.userservice.dto.UserUpdateDetails;
 import com.expensetracker.userservice.entity.User;
 import com.expensetracker.userservice.exception.UserServiceException;
 import com.expensetracker.userservice.repository.UserRepository;
@@ -47,5 +48,15 @@ public class UserDaoImpl implements UserDao {
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	public void updateUser(UserUpdateDetails userUpdateDetails) {
+		User user = getUserByEmail(userUpdateDetails.getEmail());
+		user.setFirstName(userUpdateDetails.getFirstName());
+		user.setLastName(userUpdateDetails.getLastName());
+		user.setEmail(userUpdateDetails.getEmail());
+		user.setPhoneNumber(userUpdateDetails.getPhoneNumber());
+		userRepository.save(user);
 	}
 }

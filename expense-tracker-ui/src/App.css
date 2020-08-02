@@ -6,6 +6,7 @@ body{
 }
 button{
   border-radius:3px;
+  outline:none!important
 }
 
 .font-14{

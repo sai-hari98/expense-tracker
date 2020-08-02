@@ -10,7 +10,7 @@ import com.expensetracker.userservice.entity.MonthlyBillReminder;
 import com.expensetracker.userservice.entity.MonthlyIncomeSource;
 import com.expensetracker.userservice.entity.User;
 
-public class UserSignupRequestDto {
+public class UserRequest {
 
 	@NotNull(message="User object cannot be null")
 	@Valid

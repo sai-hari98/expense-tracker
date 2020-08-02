@@ -14,8 +14,8 @@ const nonUserLinks = [
 ];
 
 const userLinks = [
-    [{to:"/income/add",text:"Add Income/Expense"}],
-    [{to:"",text:"My Profile"}]
+    [{ to: "/income/add", text: "Add Income/Expense" }],
+    [{ to: "/user", text: "My Profile" }]
 ]
 
 class NavBar extends Component {
@@ -24,11 +24,12 @@ class NavBar extends Component {
         showSideDrawer: false
     }
 
-    routingHandler = (route)=>{
+    routingHandler = (route) => {
         this.props.history.push(route);
     }
 
-    logoutHandler = () => {
+    logoutHandler = (event) => {
+        event.preventDefault();
         console.log(this.props);
         this.props.logout();
         utility.setCredentials(null, null, false);
@@ -48,14 +49,14 @@ class NavBar extends Component {
                 <a className="navbar-brand" href="/">Expense Tracker</a>
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul className="navbar-nav ml-auto">
-                        {this.props.loggedIn ? <a className="nav-link text-white ml-auto" style={{ cursor: 'pointer' }} onClick={this.logoutHandler}>Logout</a> : <Link className="nav-link text-white ml-auto" to="/login">Login</Link>}
+                        {this.props.loggedIn ? <a className="nav-link text-white ml-auto" href="/" style={{ cursor: 'pointer' }} onClick={(event) => this.logoutHandler(event)}>Logout</a> : <Link className="nav-link text-white ml-auto" to="/login">Login</Link>}
                     </ul>
                 </div>
-                <SideDrawer showDrawer={this.state.showSideDrawer} 
-                toggleDrawer={this.toggleDrawer} 
-                links={this.props.loggedIn ? userLinks : nonUserLinks} 
-                toggleHandler={this.toggleHandler}
-                routingHandler={this.routingHandler}/>
+                <SideDrawer showDrawer={this.state.showSideDrawer}
+                    toggleDrawer={this.toggleDrawer}
+                    links={this.props.loggedIn ? userLinks : nonUserLinks}
+                    toggleHandler={this.toggleHandler}
+                    routingHandler={this.routingHandler} />
                 <IconButton className="ml-auto text-white" style={{ 'outline': 'none', 'fontSize': '25' }} onClick={this.props.darkModeToggler}>
                     <SvgIcon>
                         {path}

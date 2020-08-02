@@ -10,7 +10,7 @@ import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Income from '../Income/Income';
-
+import User from '../User/User';
 class Layout extends Component {
 
     state = {
@@ -63,6 +63,7 @@ class Layout extends Component {
                     <Route path="/login" exact component={Auth}></Route>
                     <Route path="/signup" exact component={Signup}></Route>
                     <Route path="/income/add" exact component={Income}></Route>
+                    <Route path="/user" exact component={User}></Route>
                 </ThemeProvider>
             </BrowserRouter>
         )

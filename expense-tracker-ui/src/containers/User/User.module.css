@@ -1,0 +1,8 @@
+.tab{
+    flex-grow: 1;
+    display: 'flex',
+}
+
+.error-font{
+    font-size: 15px;
+}
