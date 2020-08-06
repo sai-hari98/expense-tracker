@@ -6,3 +6,15 @@
 .error-font{
     font-size: 15px;
 }
+
+.list-group{
+    max-height: 50vh;
+    overflow-y: auto;
+    background-color: inherit!important;
+    color:inherit!important;
+}
+
+.list-item{
+    background-color: inherit!important;
+    color:inherit!important;
+}

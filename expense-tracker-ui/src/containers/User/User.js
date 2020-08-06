@@ -3,7 +3,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import classes from './User.module.css';
 import Box from '@material-ui/core/Box';
-import { Button } from '@material-ui/core';
+import { Button, LinearProgress } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/Check';
 import axios from '../../expense-tracker-axios';
@@ -12,7 +12,14 @@ import Alert from '@material-ui/lab/Alert';
 import Input from '@material-ui/core/Input';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Auxilliary from '../../hoc/Auxillary';
-import { validateFormField } from '../../common/utility'
+import { validateFormField, getIncomeSourceForm, getBillReminderForm } from '../../common/utility'
+import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
+import CategoryIcon from '@material-ui/icons/Category';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import AddMonthlyIncome from '../../components/Expense/AddMonthlyIncome';
+import AddMonthlyReminder from '../../components/Expense/AddMonthlyReminder';
 
 const TabPanel = (props) => {
     const { children, value, index, ...other } = props;
@@ -87,7 +94,17 @@ export default class User extends Component {
             editMode: false
         },
         spinner: true,
+        submitSpinner: false,
+        monthlyIncomeForm: getIncomeSourceForm(),
+        billReminderForm: getBillReminderForm(),
+        monthlyIncomeSources: [],
+        monthlyBillReminders: [],
+        incomeCategories: [],
+        expenseCategories: [],
         openSnackbar: false,
+        openDialog: false,
+        dialogContent: null,
+        dialogTitle: '',
         snackbarSeverity: '',
         snackbarMessage: '',
         initialData: {}
@@ -98,6 +115,9 @@ export default class User extends Component {
         let headers = {
             'Authorization': 'Bearer ' + token
         };
+        axios.get('/common-service/categories').then(response => {
+            this.setState({ incomeCategories: response.data.incomeCategories, expenseCategories: response.data.expenseCategories });
+        }).then(error => { });
         axios.get('/user-service/users/get', { headers: headers }).then(response => {
             if (response.data !== null) {
                 let data = response.data;
@@ -123,13 +143,45 @@ export default class User extends Component {
                     firstName: firstName, lastName: lastName, email: email, phoneNumber: phoneNumber,
                     dateOfBirth: dateOfBirth, currency: currency,
                     spinner: false, initialData: response.data
-                });
+                }, () => { this.fetchMonthlyIncomeSources(); this.fetchMonthlyBillReminders() });
             } else {
                 this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching User details' });
             }
         }).catch(error => {
             this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching User details' });
         })
+    }
+
+    getHeaders = () => {
+        let token = localStorage.getItem('token');
+        let headers = {
+            'Authorization': 'Bearer ' + token
+        };
+        return { headers: headers };
+    }
+
+    fetchMonthlyIncomeSources = () => {
+        axios.get('/expense-service/monthly-income/get', this.getHeaders()).then(response => {
+            if (response.data !== null) {
+                this.setState({ monthlyIncomeSources: response.data });
+            } else {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Monthly Income Details' });
+            }
+        }).catch(error => {
+            this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Monthly Income details' });
+        });
+    }
+
+    fetchMonthlyBillReminders = () => {
+        axios.get('/expense-service/bill-reminder/get', this.getHeaders()).then(response => {
+            if (response.data !== null) {
+                this.setState({ monthlyBillReminders: response.data });
+            } else {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Bill Reminder details' });
+            }
+        }).catch(error => {
+            this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Bill Reminder details' });
+        });
     }
 
     handleTabChange = (event, newValue) => {
@@ -309,8 +361,126 @@ export default class User extends Component {
         })
     }
 
+    inputChangeHandler = (event, fieldName, formName) => {
+        let formCopy = { ...this.state[formName] };
+        let inputFieldCopy = { ...formCopy[fieldName] };
+        inputFieldCopy.value = event.target.value;
+        inputFieldCopy.valid = validateFormField(event.target.value, inputFieldCopy.validation);
+        inputFieldCopy.dirty = true;
+        formCopy[fieldName] = inputFieldCopy;
+        this.setState({ [formName]: formCopy }, () => {
+            this.openDialog(formName === 'monthlyIncomeForm' ? 'monthlyIncome' : 'billReminder');
+        });
+    }
+
+    dateChangeHandler = (date, fieldName, formName) => {
+        let formCopy = { ...this.state[formName] };
+        let inputFieldCopy = { ...formCopy[fieldName] };
+        inputFieldCopy.value = date;
+        formCopy[fieldName] = inputFieldCopy;
+        this.setState({ [formName]: formCopy }, () => {
+            this.openDialog(formName === 'monthlyIncomeForm' ? 'monthlyIncome' : 'billReminder');
+        });
+    }
+
+    addMonthlyIncome = () => {
+        this.setState({ submitSpinner: true, openDialog: false });
+        let monthlyIncomeForm = { ...this.state.monthlyIncomeForm };
+        let data = {
+            sourceName: monthlyIncomeForm.sourceName.value,
+            amount: monthlyIncomeForm.amount.value,
+            incomeCategory: monthlyIncomeForm.incomeCategory.value
+        }
+        let headers = this.getHeaders();
+        axios.post('/expense-service/monthly-income/add', data, headers).then(response => {
+            let monthlyIncomeSources = [...this.state.monthlyIncomeSources];
+            monthlyIncomeSources.push(data);
+            this.setState({
+                monthlyIncomeSources: monthlyIncomeSources, openSnackbar: true,
+                snackbarMessage: 'Monthly Income added Succesfully', snackbarSeverity: 'success',
+                submitSpinner: false
+            });
+        }).catch(error => {
+            alert('failure');
+            this.setState({
+                snackbarMessage: 'An Error occurred while adding monthly income', openSnackbar: true, snackbarSeverity: 'error',
+                submitSpinner: false
+            });
+        })
+    }
+
+    addBillReminder = () => {
+        this.setState({ submitSpinner: true, openDialog: false });
+        let billReminderForm = { ...this.state.billReminderForm };
+        let data = {
+            billDescription: billReminderForm.billDescription.value,
+            amount: billReminderForm.amount.value,
+            expenseCategory: billReminderForm.expenseCategory.value,
+            deadlineDate: billReminderForm.deadlineDate.value.getDate()
+        }
+        let headers = this.getHeaders();
+        axios.post('/expense-service/bill-reminder/add', data, headers).then(response => {
+            let monthlyBillReminders = [...this.state.monthlyBillReminders];
+            monthlyBillReminders.push(data);
+            this.setState({
+                monthlyBillReminders: monthlyBillReminders, openSnackbar: true,
+                snackbarMessage: 'Bill Reminder added Succesfully', snackbarSeverity: 'success',
+                submitSpinner: false
+            });
+        }).catch(error => {
+            this.setState({
+                snackbarMessage: 'An Error occurred while adding bill reminder', openSnackbar: true, snackbarSeverity: 'error',
+                submitSpinner: false
+            });
+        })
+    }
+
+    removeBillReminder = (id) => {
+        this.setState({ submitSpinner: true });
+        let headers = this.getHeaders();
+        console.log('billReminders', this.state.monthlyBillReminders);
+        axios.delete('/expense-service/bill-reminder/delete?id=' + id, headers).then(response => {
+            let monthlyBillReminders = [...this.state.monthlyBillReminders];
+            let index = monthlyBillReminders.findIndex(reminder => reminder.id === id);
+            monthlyBillReminders.splice(index, 1);
+            this.setState({
+                monthlyBillReminders: monthlyBillReminders, openSnackbar: true, submitSpinner: false,
+                snackbarMessage: 'Bill Reminder removed Succesfully', snackbarSeverity: 'success'
+            });
+        }).catch(error => {
+            this.setState({
+                openSnackbar: true, snackbarMessage: 'An Error occurred while removing Bill Reminder', snackbarSeverity: 'error',
+                submitSpinner: false
+            });
+        });
+    }
+
+    openDialog = (dialogTitle) => {
+        let component = null;
+        if (dialogTitle === 'monthlyIncome') {
+            component = <AddMonthlyIncome form={this.state.monthlyIncomeForm}
+                inputChangeHandler={this.inputChangeHandler}
+                dateChangeHandler={this.dateChangeHandler}
+                addHandler={this.addMonthlyIncome}
+                incomeCategories={this.state.incomeCategories} />
+        } else {
+            component = <AddMonthlyReminder form={this.state.billReminderForm}
+                inputChangeHandler={this.inputChangeHandler}
+                dateChangeHandler={this.dateChangeHandler}
+                addHandler={this.addBillReminder}
+                expenseCategories={this.state.expenseCategories} />
+        }
+        this.setState({ openDialog: true, dialogTitle: dialogTitle, dialogContent: component });
+    }
+
+    handleDialogClose = () => {
+        this.setState({ openDialog: false }, () => {
+            this.setState({ monthlyIncomeForm: getIncomeSourceForm(), billReminderForm: getBillReminderForm() })
+        });
+    }
 
     render() {
+        let today = new Date();
         return (
             <div className="container-fluid">
                 <Snackbar open={this.state.openSnackbar}
@@ -320,6 +490,23 @@ export default class User extends Component {
                         {this.state.snackbarMessage}
                     </Alert>
                 </Snackbar>
+                <Dialog
+                    open={this.state.openDialog}
+                    onClose={this.handleDialogClose}
+                    aria-labelledby="dialog"
+                >
+                    <DialogTitle id="dialog">
+                        {this.state.dialogTitle}
+                    </DialogTitle>
+                    <DialogContent>
+                        {this.state.dialogContent}
+                    </DialogContent>
+                </Dialog>
+                <div className="row mt-3">
+                    <div className="col-12">
+                        {this.state.submitSpinner ? <LinearProgress className="bg-primary" /> : <span>&nbsp;</span>}
+                    </div>
+                </div>
                 <div className="row mt-3 justify-content-center">
                     <div className="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
                         <Tabs
@@ -343,15 +530,72 @@ export default class User extends Component {
                         </TabPanel>
                         <TabPanel value={this.state.tabValue} index={1}>
                             <div className="row">
-                                <div className="col-12 text-center">
-                                    Monthly Income
+                                <div className={"col-12 text-center p-0 " + classes['list-group']}>
+                                    {this.state.monthlyIncomeSources.length > 0 ? (
+                                        <ul className="list-group">
+                                            {this.state.monthlyIncomeSources.map((source, key) => {
+                                                return (
+                                                    <li className={"list-group-item list-group-item-action " + classes['list-item']} key={"source-" + key}>
+                                                        <div className="row">
+                                                            <div className="col-8 text-left">{source.sourceName}</div>
+                                                            <div className="col-4 text-right">
+                                                                <Button onClick={(event) => this.removeMonthlyIncome(source.id)}
+                                                                    className="bg-danger text-white" size="small" variant="contained">Remove</Button>
+                                                            </div>
+                                                        </div>
+                                                        <div className="row">
+                                                            <div className="col-5 text-left">
+                                                                <small><AccountBalanceWalletIcon /> {source.amount}</small>
+                                                            </div>
+                                                            <div className="col-5 text-left">
+                                                                <small><CategoryIcon /> {source.incomeCategory.categoryName}</small>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                )
+                                            })}
+                                        </ul>
+                                    ) : <span>No Income Sources are added</span>}
+                                </div>
+                                <div className="col-12 text-center mt-1">
+                                    <Button className="bg-primary text-white" size="medium" variant="contained"
+                                        onClick={(event) => this.openDialog('monthlyIncome')}>Add Income Source</Button>
                                 </div>
                             </div>
                         </TabPanel>
                         <TabPanel value={this.state.tabValue} index={2}>
                             <div className="row">
-                                <div className="col-12 text-center">
-                                    Bill Reminders
+                                <div className={"col-12 text-center p-0 " + classes['list-group']}>
+                                    {this.state.monthlyBillReminders.length > 0 ? (
+                                        <ul className="list-group">
+                                            {this.state.monthlyBillReminders.map((reminder, key) => {
+                                                return (
+                                                    <li className={"list-group-item list-group-item-action " + classes['list-item']} key={"source-" + key}>
+                                                        <div className="row">
+                                                            <div className="col-8 text-left">{reminder.billDescription}</div>
+                                                            <div className="col-4 text-right">
+                                                                <Button
+                                                                    onClick={(event) => this.removeBillReminder(reminder.id)}
+                                                                    className="bg-danger text-white" size="small" variant="contained">Remove</Button>
+                                                            </div>
+                                                        </div>
+                                                        <div className="row">
+                                                            <div className="col-8 text-left">
+                                                                <small><AccountBalanceWalletIcon /> {reminder.amount} &nbsp; <CategoryIcon /> {reminder.expenseCategory.categoryName}</small>
+                                                            </div>
+                                                            <div className="col-4 text-right">
+                                                                <small>Deadline Date:{reminder.deadlineDate + "/" + today.getMonth() + "/" + today.getFullYear()}</small>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                )
+                                            })}
+                                        </ul>
+                                    ) : <span>No Bill Reminders are added</span>}
+                                </div>
+                                <div className="col-12 text-center mt-1">
+                                    <Button className="bg-primary text-white" size="medium" variant="contained"
+                                        onClick={(event) => this.openDialog('billReminder')}>Add Bill Reminder</Button>
                                 </div>
                             </div>
                         </TabPanel>

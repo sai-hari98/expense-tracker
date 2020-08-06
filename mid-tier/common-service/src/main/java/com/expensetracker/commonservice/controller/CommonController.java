@@ -24,10 +24,18 @@ public class CommonController {
 		signupFormData.put("expenseCategories", commonService.getAllExpenseCategories());
 		return signupFormData;
 	}
-	
+
+	@GetMapping("/categories")
+	public Map<String, Object> getIncomeExpenseCategories() {
+		Map<String, Object> categoryData = new HashMap<>();
+		categoryData.put("incomeCategories", commonService.getAllIncomeCategories());
+		categoryData.put("expenseCategories", commonService.getAllExpenseCategories());
+		return categoryData;
+	}
+
 	@GetMapping("/income-category")
-	public List<IncomeCategory> getIncomeCategories(){
+	public List<IncomeCategory> getIncomeCategories() {
 		return commonService.getAllIncomeCategories();
 	}
-	
+
 }
