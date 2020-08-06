@@ -143,7 +143,7 @@ class Signup extends PureComponent {
             />,
             <MonthlyIncome
                 incomeSources={this.state.authForm.incomeSources.value}
-                form={this.state.incomeForm}
+                form={this.state.monthlyIncomeForm}
                 inputChangeHandler={this.inputChangeHandler}
                 incomeCategories={this.state.incomeCategories}
                 add={this.addMonthlyData} remove={this.removeMonthlyHandler} />,
