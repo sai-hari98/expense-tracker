@@ -1,3 +1,4 @@
+import axios from '../expense-tracker-axios';
 const authForm = {
     email: {
         value: '',
@@ -225,4 +226,9 @@ export const setCredentials = (token, userId, loggedIn) => {
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
     }
+}
+
+export const removeCredentialsAndRefresh = () => {
+    setCredentials('', '', false);
+    window.location.href = 'http://localhost:3000/login';
 }

@@ -12,7 +12,7 @@ import Alert from '@material-ui/lab/Alert';
 import Input from '@material-ui/core/Input';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Auxilliary from '../../hoc/Auxillary';
-import { validateFormField, getIncomeSourceForm, getBillReminderForm } from '../../common/utility'
+import { validateFormField, getIncomeSourceForm, getBillReminderForm, removeCredentialsAndRefresh } from '../../common/utility'
 import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
 import CategoryIcon from '@material-ui/icons/Category';
 import Dialog from '@material-ui/core/Dialog';
@@ -148,7 +148,14 @@ export default class User extends Component {
                 this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching User details' });
             }
         }).catch(error => {
-            this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching User details' });
+            if (error.response.status === 401) {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'Login Session Expired' });
+                setTimeout(() => {
+                    removeCredentialsAndRefresh();
+                }, 4000);
+            } else {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching User details' });
+            }
         })
     }
 
@@ -168,7 +175,14 @@ export default class User extends Component {
                 this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Monthly Income Details' });
             }
         }).catch(error => {
-            this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Monthly Income details' });
+            if (error.response.status === 401) {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'Login Session Expired' });
+                setTimeout(() => {
+                    removeCredentialsAndRefresh();
+                }, 4000);
+            } else {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Monthly Income details' });
+            }
         });
     }
 
@@ -180,7 +194,14 @@ export default class User extends Component {
                 this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Bill Reminder details' });
             }
         }).catch(error => {
-            this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Bill Reminder details' });
+            if (error.response.status === 401) {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'Login Session Expired' });
+                setTimeout(() => {
+                    removeCredentialsAndRefresh();
+                }, 4000);
+            } else {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while fetching Bill Reminder details' });
+            }
         });
     }
 
@@ -357,7 +378,14 @@ export default class User extends Component {
                 email: email, phoneNumber: phoneNumber
             });
         }).catch(error => {
-
+            if (error.response.status === 401) {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'Login Session Expired' });
+                setTimeout(() => {
+                    removeCredentialsAndRefresh();
+                }, 4000);
+            } else {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'An error occurred while updating User details' });
+            }
         })
     }
 
@@ -401,11 +429,17 @@ export default class User extends Component {
                 submitSpinner: false
             });
         }).catch(error => {
-            alert('failure');
-            this.setState({
-                snackbarMessage: 'An Error occurred while adding monthly income', openSnackbar: true, snackbarSeverity: 'error',
-                submitSpinner: false
-            });
+            if (error.response.status === 401) {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'Login Session Expired', submitSpinner: false });
+                setTimeout(() => {
+                    removeCredentialsAndRefresh();
+                }, 4000);
+            } else {
+                this.setState({
+                    snackbarMessage: 'An Error occurred while adding monthly income', openSnackbar: true, snackbarSeverity: 'error',
+                    submitSpinner: false
+                });
+            }
         })
     }
 
@@ -428,10 +462,17 @@ export default class User extends Component {
                 submitSpinner: false
             });
         }).catch(error => {
-            this.setState({
-                snackbarMessage: 'An Error occurred while adding bill reminder', openSnackbar: true, snackbarSeverity: 'error',
-                submitSpinner: false
-            });
+            if (error.response.status === 401) {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'Login Session Expired', submitSpinner: false });
+                setTimeout(() => {
+                    removeCredentialsAndRefresh();
+                }, 4000);
+            } else {
+                this.setState({
+                    snackbarMessage: 'An Error occurred while adding bill reminder', openSnackbar: true, snackbarSeverity: 'error',
+                    submitSpinner: false
+                });
+            }
         })
     }
 
@@ -448,10 +489,17 @@ export default class User extends Component {
                 snackbarMessage: 'Bill Reminder removed Succesfully', snackbarSeverity: 'success'
             });
         }).catch(error => {
-            this.setState({
-                openSnackbar: true, snackbarMessage: 'An Error occurred while removing Bill Reminder', snackbarSeverity: 'error',
-                submitSpinner: false
-            });
+            if (error.response.status === 401) {
+                this.setState({ openSnackbar: true, snackbarSeverity: 'error', snackbarMessage: 'Login Session Expired', submitSpinner: false });
+                setTimeout(() => {
+                    removeCredentialsAndRefresh();
+                }, 4000);
+            } else {
+                this.setState({
+                    openSnackbar: true, snackbarMessage: 'An Error occurred while removing Bill Reminder', snackbarSeverity: 'error',
+                    submitSpinner: false
+                });
+            }
         });
     }
 
