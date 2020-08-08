@@ -61,22 +61,21 @@ class Layout extends Component {
                 <ThemeProvider theme={this.getThemeObject()}>
                     <CssBaseline />
                     <NavBar darkMode={this.state.darkMode} darkModeToggler={this.darkModeHandler} />
-                    <Switch>
-                        {!this.props.loggedIn ? (
-                            <React.Fragment>
-                                <Route path="/" exact component={NonUser}></Route>
-                                <Route path="/login" exact component={Auth}></Route>
-                                <Route path="/signup" exact component={Signup}></Route>
+                    {!this.props.loggedIn ? (
+                        <Switch>
+                            <Route path="/" exact component={NonUser}></Route>
+                            <Route path="/login" exact component={Auth}></Route>
+                            <Route path="/signup" exact component={Signup}></Route>
+                            <Route component={NotFound} />
+                        </Switch>
+                    ) : (
+                            <Switch>
+                                <Route path="/" exact render={() => null} />
+                                <Route path="/income/add" exact component={Income}></Route>
+                                <Route path="/user" exact component={User}></Route>
                                 <Route component={NotFound} />
-                            </React.Fragment>
-                        ) : (
-                                <React.Fragment>
-                                    <Route path="/income/add" exact component={Income}></Route>
-                                    <Route path="/user" exact component={User}></Route>
-                                    <Route component={NotFound} />
-                                </React.Fragment>
-                            )}
-                    </Switch>
+                            </Switch>
+                        )}
                 </ThemeProvider>
             </BrowserRouter>
         )
