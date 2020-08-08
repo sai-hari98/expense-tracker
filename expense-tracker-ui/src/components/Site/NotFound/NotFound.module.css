@@ -1,0 +1,13 @@
+.background {
+    background-image: url('../../../assets/404-error-256px.png');
+    height: 256px;
+    width: 256px;
+}
+
+@media(max-width:500px) {
+    .background {
+        background-image: url('../../../assets/404-error-128px.png');
+        height: 128px;
+        width: 128px;
+    }
+}

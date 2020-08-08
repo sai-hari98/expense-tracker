@@ -11,6 +11,8 @@ import { ThemeProvider } from "@material-ui/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Income from '../Income/Income';
 import User from '../User/User';
+import { Switch } from 'react-router-dom'
+import NotFound from '../../components/Site/NotFound/NotFound';
 class Layout extends Component {
 
     state = {
@@ -29,7 +31,7 @@ class Layout extends Component {
         let theme = createMuiTheme({
             typography: {
                 "fontFamily": `"Noto Sans JP",  sans-serif`,
-                "fontSize":15,
+                "fontSize": 15,
                 "fontWeightLight": 300,
                 "fontWeightRegular": 400,
                 "fontWeightMedium": 500
@@ -59,11 +61,22 @@ class Layout extends Component {
                 <ThemeProvider theme={this.getThemeObject()}>
                     <CssBaseline />
                     <NavBar darkMode={this.state.darkMode} darkModeToggler={this.darkModeHandler} />
-                    {!this.props.loggedIn ? <Route path="/" exact component={NonUser}></Route> : null}
-                    <Route path="/login" exact component={Auth}></Route>
-                    <Route path="/signup" exact component={Signup}></Route>
-                    <Route path="/income/add" exact component={Income}></Route>
-                    <Route path="/user" exact component={User}></Route>
+                    <Switch>
+                        {!this.props.loggedIn ? (
+                            <React.Fragment>
+                                <Route path="/" exact component={NonUser}></Route>
+                                <Route path="/login" exact component={Auth}></Route>
+                                <Route path="/signup" exact component={Signup}></Route>
+                                <Route component={NotFound} />
+                            </React.Fragment>
+                        ) : (
+                                <React.Fragment>
+                                    <Route path="/income/add" exact component={Income}></Route>
+                                    <Route path="/user" exact component={User}></Route>
+                                    <Route component={NotFound} />
+                                </React.Fragment>
+                            )}
+                    </Switch>
                 </ThemeProvider>
             </BrowserRouter>
         )

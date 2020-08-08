@@ -1,4 +1,3 @@
-import axios from '../expense-tracker-axios';
 const authForm = {
     email: {
         value: '',
