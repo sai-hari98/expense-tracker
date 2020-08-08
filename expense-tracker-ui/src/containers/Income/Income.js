@@ -4,64 +4,28 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import AddIncome from '../../components/Expense/AddIncome';
-import AddMonthlyIncome from '../../components/Expense/AddMonthlyIncome';
 import * as utility from '../../common/utility';
 import axios from '../../expense-tracker-axios';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
+import AddExpense from '../../components/Expense/AddExpense';
 
 class Income extends Component {
 
     state = {
-        incomeForm: {
-            description: {
-                value: '',
-                validation: {
-                    required: true
-                },
-                dirty: false,
-                valid: false
-            },
-            amount: {
-                value: '',
-                validation: {
-                    required: true,
-                    numeric: true
-                },
-                dirty: false,
-                valid: false
-            },
-            incomeCategory: {
-                value: '',
-                validation: {
-                    required: true,
-                    dropDown: true
-                },
-                valid: false,
-                dirty: false
-            },
-            date: {
-                value: new Date(),
-                validation: {
-                    required: true
-                },
-                valid: true,
-                dirty: false
-            }
-        },
-        monthlyIncomeForm: utility.getIncomeSourceForm(),
+        incomeForm: utility.getIncomeExpenseForm('income'),
+        expenseForm: utility.getIncomeExpenseForm('expense'),
         incomeCategories: [],
+        expenseCategories: [],
         openSnackbar: false,
         message: '',
         snackbarSeverity: ''
     }
 
     componentDidMount() {
-        axios.get("/common-service/income-category").then(response => {
-            this.setState({ incomeCategories: response.data });
-        }).catch(error => {
-            console.log(error.response);
-        })
+        axios.get('/common-service/categories').then(response => {
+            this.setState({ incomeCategories: response.data.incomeCategories, expenseCategories: response.data.expenseCategories });
+        }).then(error => { });
     }
 
     dateChangeHandler = (date, fieldName, formName) => {
@@ -83,30 +47,38 @@ class Income extends Component {
             incomeCategory: incomeForm.incomeCategory.value,
             date: incomeDate.getDate() + "/" + month + "/" + incomeDate.getFullYear()
         }
-        axios.post("/expense-service/add-income", data, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).then(response => {
-            this.setState({openSnackbar:true, message:'Income Successfully Added', snackbarSeverity:'success'});
+        let headers = utility.getHeaders();
+        axios.post("/expense-service/income/add", data, headers ).then(response => {
+            this.setState({ openSnackbar: true, message: 'Income Successfully Added', snackbarSeverity: 'success' });
         }).catch(error => {
             if (error.response && error.response.status === 401) {
-                this.setState({ progress: false, openSnackbar: true, message: 'Session has expired. Please login again', snackbarSeverity: 'error' });
+                this.setState({ progress: false, openSnackbar: true, message: 'Login session expired', snackbarSeverity: 'error' });
+                setTimeout(() => {
+                    utility.removeCredentialsAndRefresh();
+                }, 4000);
             } else {
                 this.setState({ progress: false, openSnackbar: true, message: 'An Error Occurred. Try Again', snackbarSeverity: 'error' });
             }
         })
     }
 
-    addMonthlyIncomeHandler = () => {
-        let monthlyIncomeForm = this.state.monthlyIncomeForm;
+    addExpenseHandler = () => {
+        let expenseForm = this.state.expenseForm;
         let data = {
-            sourceName: monthlyIncomeForm.sourceName.value,
-            amount: monthlyIncomeForm.amount.value,
-            incomeCategory: monthlyIncomeForm.incomeCategory.value
+            description: expenseForm.description.value,
+            amount: expenseForm.amount.value,
+            expenseCategory: expenseForm.expenseCategory.value,
+            date: expenseForm.date.value
         };
-        let headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token') };
-        axios.post('/expense-service/monthly-income/add', data, { headers: headers }).then(response => {
-            this.setState({openSnackbar:true, message:'Monthly Income Source Successfully Added', snackbarSeverity:'success'});
+        let headers = utility.getHeaders();
+        axios.post('/expense-service/expense/add', data, headers).then(response => {
+            this.setState({ openSnackbar: true, message: 'Expense added successfully', snackbarSeverity: 'success' });
         }).catch(error => {
             if (error.response && error.response.status === 401) {
-                this.setState({ progress: false, openSnackbar: true, message: 'Session has expired. Please login again', snackbarSeverity: 'error' });
+                this.setState({ progress: false, openSnackbar: true, message: 'Login session expired', snackbarSeverity: 'error' });
+                setTimeout(() => {
+                    utility.removeCredentialsAndRefresh();
+                }, 4000);
             } else {
                 this.setState({ progress: false, openSnackbar: true, message: 'An Error Occurred. Try Again', snackbarSeverity: 'error' });
             }
@@ -156,14 +128,14 @@ class Income extends Component {
                     <AccordionSummary
                         style={{ marginLeft: '0px' }}
                         expandIcon={<ExpandMoreIcon />}
-                        id="monthly-income">
-                        <Typography>Add Monthly Income Details</Typography>
+                        id="expense">
+                        <Typography>Add Expense Details</Typography>
                     </AccordionSummary>
-                    <AddMonthlyIncome
-                        incomeCategories={this.state.incomeCategories}
-                        form={this.state.monthlyIncomeForm}
+                    <AddExpense expenseCategories={this.state.expenseCategories}
                         inputChangeHandler={this.inputChangeHandler}
-                        addHandler={this.addMonthlyIncomeHandler} />
+                        form={this.state.expenseForm}
+                        dateChangeHandler={this.dateChangeHandler}
+                        addHandler={this.addExpenseHandler} />
                 </Accordion>
             </div>
         );

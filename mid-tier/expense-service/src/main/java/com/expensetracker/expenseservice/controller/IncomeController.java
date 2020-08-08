@@ -27,7 +27,7 @@ public class IncomeController {
 	@Autowired
 	private IncomeService incomeService;
 
-	@PostMapping("/add-income")
+	@PostMapping("/income/add")
 	public void addIncome(@RequestHeader(name = "Authorization") String authorization,
 			@RequestBody @Valid AddIncomeRequestDto incomeRequest) {
 		LOGGER.info("Token: " + authorization);
