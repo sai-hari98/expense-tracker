@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.expensetracker.expenseservice.entity.Expense;
 import com.expensetracker.expenseservice.entity.MonthlyBillReminder;
 import com.expensetracker.expenseservice.service.ExpenseService;
 
@@ -36,5 +37,10 @@ public class ExpenseController {
 	@DeleteMapping("/bill-reminder/delete")
 	public void deleteMonthlyReminder(@RequestParam(name = "id") int id) {
 		expenseService.removeBillReminder(id);
+	}
+
+	@PostMapping("/expense/add")
+	public void addExpense(@RequestHeader(name = "Authorization") String auth, @RequestBody @Valid Expense expense) {
+		expenseService.addExpense(auth.replace("Bearer ", ""), expense);
 	}
 }

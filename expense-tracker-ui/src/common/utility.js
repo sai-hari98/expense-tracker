@@ -231,3 +231,66 @@ export const removeCredentialsAndRefresh = () => {
     setCredentials('', '', false);
     window.location.href = 'http://localhost:3000/login';
 }
+
+export const getHeaders = () => {
+    return {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    }
+}
+
+export const getIncomeExpenseForm = (type) => {
+    let form = {
+        description: {
+            value: '',
+            validation: {
+                required: true
+            },
+            dirty: false,
+            valid: false
+        },
+        amount: {
+            value: '',
+            validation: {
+                required: true,
+                numeric: true
+            },
+            dirty: false,
+            valid: false
+        },
+        date: {
+            value: new Date(),
+            validation: {
+                required: true
+            },
+            valid: true,
+            dirty: false
+        }
+    };
+    if (type === 'income') {
+        return {
+            ...form,
+            incomeCategory: {
+                value: '',
+                validation: {
+                    required: true,
+                    dropDown: true
+                },
+                valid: false,
+                dirty: false
+            }
+        }
+    } else {
+        return {
+            ...form,
+            expenseCategory: {
+                value: '',
+                validation: {
+                    required: true,
+                    dropDown: true
+                },
+                valid: false,
+                dirty: false
+            }
+        }
+    }
+}
