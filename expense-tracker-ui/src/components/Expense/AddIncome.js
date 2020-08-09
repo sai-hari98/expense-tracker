@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { TextField } from '@material-ui/core';
 import { Button } from '@material-ui/core';
 import Aux from '../../hoc/Auxillary';
@@ -9,8 +9,7 @@ import Select from '@material-ui/core/Select';
 import { checkFormValidity, checkInvalid } from '../../common/utility';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-class AddIncome extends Component {
-
+class AddIncome extends PureComponent {
 
     getIncomeCategoryOptions = () => {
         return this.props.incomeCategories.map(category => {
