@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { TextField } from '@material-ui/core';
 import { Button } from '@material-ui/core';
 import Aux from '../../hoc/Auxillary';
@@ -10,7 +10,7 @@ import { checkFormValidity, checkInvalid } from '../../common/utility';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-export default class AddExpense extends Component {
+export default class AddExpense extends PureComponent {
 
     getExpenseCategoriesOptions = () => {
         return this.props.expenseCategories.map(category => {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Typography from '@material-ui/core/Typography';
@@ -10,7 +10,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import AddExpense from '../../components/Expense/AddExpense';
 
-class Income extends Component {
+class Income extends PureComponent {
 
     state = {
         incomeForm: utility.getIncomeExpenseForm('income'),
@@ -48,8 +48,8 @@ class Income extends Component {
             date: incomeDate.getDate() + "/" + month + "/" + incomeDate.getFullYear()
         }
         let headers = utility.getHeaders();
-        axios.post("/expense-service/income/add", data, headers ).then(response => {
-            this.setState({ openSnackbar: true, message: 'Income Successfully Added', snackbarSeverity: 'success' });
+        axios.post("/expense-service/income/add", data, headers).then(response => {
+            this.setState({ openSnackbar: true, message: 'Income Successfully Added', snackbarSeverity: 'success', incomeForm: utility.getIncomeExpenseForm('income') });
         }).catch(error => {
             if (error.response && error.response.status === 401) {
                 this.setState({ progress: false, openSnackbar: true, message: 'Login session expired', snackbarSeverity: 'error' });
@@ -72,7 +72,7 @@ class Income extends Component {
         };
         let headers = utility.getHeaders();
         axios.post('/expense-service/expense/add', data, headers).then(response => {
-            this.setState({ openSnackbar: true, message: 'Expense added successfully', snackbarSeverity: 'success' });
+            this.setState({ openSnackbar: true, message: 'Expense added successfully', snackbarSeverity: 'success', expenseForm: utility.getIncomeExpenseForm('expense') });
         }).catch(error => {
             if (error.response && error.response.status === 401) {
                 this.setState({ progress: false, openSnackbar: true, message: 'Login session expired', snackbarSeverity: 'error' });
@@ -91,7 +91,6 @@ class Income extends Component {
         inputFieldCopy.value = event.target.value;
         inputFieldCopy.valid = utility.validateFormField(event.target.value, inputFieldCopy.validation);
         inputFieldCopy.dirty = true;
-        console.log(formName);
         formCopy[fieldName] = inputFieldCopy;
         this.setState({ [formName]: formCopy });
     }
