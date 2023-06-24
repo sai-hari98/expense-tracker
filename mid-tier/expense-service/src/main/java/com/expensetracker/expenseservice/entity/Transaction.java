@@ -13,6 +13,7 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int transactionID;
+    private Currency currency;
     private TransactionType type;
     private double amount;
     private TransactionCategory category;
