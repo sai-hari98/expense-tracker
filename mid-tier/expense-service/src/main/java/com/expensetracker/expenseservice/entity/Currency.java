@@ -19,6 +19,9 @@ public class Currency {
 	@Column(name = "currency_name")
 	private String currencyName;
 
+	@Column(name="abbrevation")
+	private String abbrevation;
+
 	public Currency() {
 		super();
 	}
