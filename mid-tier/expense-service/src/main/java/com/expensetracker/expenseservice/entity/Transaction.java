@@ -11,13 +11,16 @@ import javax.validation.constraints.NotNull;
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transaction-id")
+    @Column(name = "transaction_id")
     private int transactionID;
 
-    @ManyToOne
+    /* commenting this for now.
+    making it one currency for an user.
+     */
+    /*@ManyToOne
     @JoinColumn(name="currency_id")
     @NotNull
-    private Currency currency;
+    private Currency currency;*/
 
     @ManyToOne
     @JoinColumn(name="type_id")
@@ -42,6 +45,11 @@ public class Transaction {
     @JoinColumn(name="card_id")
     @NotNull
     private Card card;
+
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    @NotNull
+    private User user;
 
     @NotNull
     private String remarks;
