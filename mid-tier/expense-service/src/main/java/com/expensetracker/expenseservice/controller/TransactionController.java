@@ -17,7 +17,7 @@ public class TransactionController {
     @Autowired
     TransactionService transactionService;
 
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity addTransaction(@Valid Transaction transaction){
         transactionService.addTransaction(transaction);
         return ResponseEntity.ok().build();
