@@ -1,8 +1,5 @@
 server:
   port: 8082
-spring:
-  application:
-    name: expense-service
   
   # Spring Framework and application log 
 logging:
@@ -14,6 +11,8 @@ logging:
   
   #Database Config
 spring:
+  application:
+    name: expense-service
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/expense_tracker

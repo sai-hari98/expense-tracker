@@ -4,10 +4,9 @@ import com.expensetracker.expenseservice.entity.Transaction;
 import com.expensetracker.expenseservice.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -18,8 +17,15 @@ public class TransactionController {
     TransactionService transactionService;
 
     @PostMapping
-    public ResponseEntity addTransaction(@Valid Transaction transaction){
+    public ResponseEntity addTransaction(
+            @Valid Transaction transaction,
+            HttpServletRequest httpServletRequest){
         transactionService.addTransaction(transaction);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{spreadsheetID}")
+    public String getTransactions(@PathVariable(name = "spreadsheetID") String spreadsheetID){
+        return transactionService.fetchTransactionsFromGoogleSheets(spreadsheetID);
     }
 }
