@@ -1,7 +1,9 @@
 package com.expensetracker.expenseservice.service;
 
+import com.expensetracker.expenseservice.entity.GoogleSheetsValues;
 import com.expensetracker.expenseservice.entity.Transaction;
 import com.expensetracker.expenseservice.repository.TransactionRepository;
+import com.expensetracker.expenseservice.utility.AWSUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -28,16 +30,22 @@ public class TransactionService {
     @Autowired
     private RestTemplate googleSheetsRestTemplate;
 
+    @Autowired
+    private AWSUtility awsUtility;
+
     public void addTransaction(Transaction transaction){
         transactionRepository.save(transaction);
     }
 
-    public String fetchTransactionsFromGoogleSheets(String spreadSheetID){
-        String formattedUrl = String.format(GOOGLE_SHEETS_FETCH_API, spreadSheetID
-                , monthStringFormat.format(Date.from(Instant.now())));
+    public void saveTransactionsOfCurrentMonthFromGoogleSheets(String spreadsheetID){
+        GoogleSheetsValues values = fetchTransactionsFromGoogleSheetsForMonth(spreadsheetID, monthStringFormat.format(Date.from(Instant.now())));
+    }
+
+    public GoogleSheetsValues fetchTransactionsFromGoogleSheetsForMonth(String spreadSheetID, String month){
+        String formattedUrl = String.format(GOOGLE_SHEETS_FETCH_API, spreadSheetID, month);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-goog-api-key", "AIzaSyDBLcj3um5YbqpSDjlxSyOuoqbdTPw6xvc");
+        headers.set("X-goog-api-key", awsUtility.getSecretValue("google-sheets-api-key"));
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-        return googleSheetsRestTemplate.exchange(formattedUrl, HttpMethod.GET, requestEntity, String.class).getBody();
+        return googleSheetsRestTemplate.exchange(formattedUrl, HttpMethod.GET, requestEntity, GoogleSheetsValues.class).getBody();
     }
 }

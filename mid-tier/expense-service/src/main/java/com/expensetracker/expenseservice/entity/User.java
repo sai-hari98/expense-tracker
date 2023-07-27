@@ -32,7 +32,7 @@ public class User {
 	private String lastName;
 
 	@NotNull
-	@Column(name = "ph_no")
+	@Column(name = "phone_number", columnDefinition = "char")
 	private String phoneNumber;
 
 	@NotNull
@@ -44,7 +44,7 @@ public class User {
 	private String password;
 
 	@NotNull
-	@Column(name = "dob")
+	@Column(name = "date_of_birth")
 	@JsonFormat(pattern = "dd/MM/yyyy", shape = JsonFormat.Shape.STRING)
 	private Date dateOfBirth;
 

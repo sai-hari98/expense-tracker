@@ -1,5 +1,6 @@
 package com.expensetracker.expenseservice.controller;
 
+import com.expensetracker.expenseservice.entity.GoogleSheetsValues;
 import com.expensetracker.expenseservice.entity.Transaction;
 import com.expensetracker.expenseservice.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{spreadsheetID}")
-    public String getTransactions(@PathVariable(name = "spreadsheetID") String spreadsheetID){
+    public GoogleSheetsValues getTransactions(@PathVariable(name = "spreadsheetID") String spreadsheetID){
         return transactionService.fetchTransactionsFromGoogleSheets(spreadsheetID);
     }
 }
