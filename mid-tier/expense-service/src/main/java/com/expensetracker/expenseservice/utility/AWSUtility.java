@@ -20,8 +20,7 @@ public class AWSUtility {
                     .secretId(secretName)
                     .build();
             GetSecretValueResponse valueResponse = secretsClient.getSecretValue(valueRequest);
-            String secret = valueResponse.secretString();
-            return secret;
+            return valueResponse.secretString();
         } catch (SecretsManagerException e) {
             System.err.println(e.awsErrorDetails().errorMessage());
             throw new RuntimeException("Exception in accessing secret");
