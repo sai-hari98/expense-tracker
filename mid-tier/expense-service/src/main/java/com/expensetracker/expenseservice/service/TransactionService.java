@@ -27,11 +27,10 @@ public class TransactionService {
     private TransactionRepository transactionRepository;
 
     @Resource(name = "googleSheetsRestTemplate")
-    @Autowired
     private RestTemplate googleSheetsRestTemplate;
 
-    @Autowired
-    private AWSUtility awsUtility;
+    @Resource(name = "googleSheetsApiKey")
+    private String googleSheetsApiKey;
 
     public void addTransaction(Transaction transaction){
         transactionRepository.save(transaction);
@@ -44,8 +43,16 @@ public class TransactionService {
     public GoogleSheetsValues fetchTransactionsFromGoogleSheetsForMonth(String spreadSheetID, String month){
         String formattedUrl = String.format(GOOGLE_SHEETS_FETCH_API, spreadSheetID, month);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-goog-api-key", awsUtility.getSecretValue("google-sheets-api-key"));
+        headers.set("X-goog-api-key", googleSheetsApiKey);
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
         return googleSheetsRestTemplate.exchange(formattedUrl, HttpMethod.GET, requestEntity, GoogleSheetsValues.class).getBody();
+    }
+
+    /**
+     * Method to save all transactions into the database
+     * @param spreadsheetID - Google sheets ID from the shared url
+     */
+    public void saveTransactionsInDatabase(String spreadsheetID) {
+
     }
 }

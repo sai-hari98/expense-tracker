@@ -25,8 +25,9 @@ public class TransactionController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{spreadsheetID}")
-    public GoogleSheetsValues getTransactions(@PathVariable(name = "spreadsheetID") String spreadsheetID){
-        return transactionService.fetchTransactionsFromGoogleSheets(spreadsheetID);
+    @PostMapping("/{spreadsheetID}")
+    public ResponseEntity saveTransactionsInDatabase(@PathVariable(name = "spreadsheetID") String spreadsheetID){
+        transactionService.saveTransactionsInDatabase(spreadsheetID);
+        return ResponseEntity.ok().build();
     }
 }
